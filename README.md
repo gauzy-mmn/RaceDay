@@ -11,6 +11,6 @@ A Github Actions workflow that checks on every push that /docs exist and contain
 <img width="1532" height="352" alt="image" src="https://github.com/user-attachments/assets/5acf1d50-7195-4ee3-8230-e73398067536" />
 
 # Youtube Video explanation
-
+https://youtu.be/xH9m8uek9uQ
 # AI tool Disclosure
 Used Claude AI to help with the planning and proof-reading of the API Endpoint Plan
