@@ -11,13 +11,13 @@ public class  Role
 {
     public int RoleId { get; set; }
     public string RoleName { get; set; } = string.Empty;
-    public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+    public ICollection<User> Users { get; set; } = new List<User>();
 }
 
 public class User
     {
     public int UserId { get; set; }
-    public string RoleId { get; set; }
+    public int RoleId { get; set; }
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
@@ -31,10 +31,28 @@ public class User
 
 }
 
+public class RaceEvent
+{
+    public int EventId { get; set; }
+    public int OrganiserId { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public DateTime EventDate { get; set; }
+    public string Location { get; set; } = string.Empty;
+    public decimal Distance { get; set; }
+    public string EventType { get; set; } = string.Empty;
+    public DateTime CreatedAt { get; set; }
+
+    public User Organiser { get; set; } = null!;
+    public ICollection<Category> Categories { get; set; } = new List<Category>();
+    public ICollection<Enrolment> Enrolments { get; set; } = new List<Enrolment>();
+}
+
+
 public class Category
 {
     public int CategoryId { get; set; }
-    public string EventID { get; set; }
+    public int EventId { get; set; }
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
 

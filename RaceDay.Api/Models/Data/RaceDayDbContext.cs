@@ -1,28 +1,28 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Raceday.Api.Models;
+using RaceDay.Api.Models;
 
-namespace Raceday.Api.Data;
+namespace RaceDay.Api.Data;
 
 
-public class  RaceDayDbContexr : DbContext
+public class  RaceDayDbContext : DbContext
 {
-    public RaceDayDbContexr(DbContextOptions<RaceDayDbContexr> options) : base(options)
+    public RaceDayDbContext(DbContextOptions<RaceDayDbContext> options) : base(options)
     {
     }
-    public Dbset<Role> Roles => Set<Role>();
-    public Dbset<User> Users => Set<User>();
-    public Dbset<RaceEvent> Events => Set<RaceEvent>();
-    public Dbset<Category> Categories => Set<Category>();
-    public Dbset<Enrolment> Enrolments => Set<Enrolment>();
-    public Dbset<RaceResult> Results => Set<RaceResult>();
+    public DbSet<Role> Roles => Set<Role>();
+    public DbSet<User> Users => Set<User>();
+    public DbSet<RaceEvent> Events => Set<RaceEvent>();
+    public DbSet<Category> Categories => Set<Category>();
+    public DbSet<Enrolment> Enrolments => Set<Enrolment>();
+    public DbSet<RaceResult> Results => Set<RaceResult>();
 
     protected override void OnModelCreating(ModelBuilder mb)
     {
-        mb.Entity<Roles>(e =>
+        mb.Entity<Role>(e =>
         {
             e.ToTable("Roles");
             e.HasKey(r => r.RoleId).HasName("PK_Roles");
-            e.Property(r => r.RoleName).HasColounType("varchar(20)").IsRequired();
+            e.Property(r => r.RoleName).HasColumnType("varchar(20)").IsRequired();
             e.HasIndex(r => r.RoleName).IsUnique().HasDatabaseName("UQ_Roles_RoleName");
 
             e.HasData(
