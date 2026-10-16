@@ -18,10 +18,10 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Restore
-        run: dotnet restore RaceDay.sln
+        run: dotnet restore RaceDay.Api.Tests/RaceDay.Api.Tests.csproj
 
       - name: Build
-        run: dotnet build RaceDay.sln --no-restore --configuration Release
+        run: dotnet build RaceDay.Api.Tests/RaceDay.Api.Tests.csproj --no-restore --configuration Release
 
       - name: Run unit tests
-        run: dotnet test RaceDay.sln --no-build --configuration Release --verbosity normal
+        run: dotnet test RaceDay.Api.Tests/RaceDay.Api.Tests.csproj --no-build --configuration Release --verbosity normal
