@@ -21,6 +21,6 @@ A Github Actions workflow that checks on every push that /docs exist and contain
 
 # Youtube Video explanation
 Part 1: https://youtu.be/xH9m8uek9uQ
-Part 2: 
+Part 2: https://youtu.be/YXeLLlfLeoU
 # AI tool Disclosure
 Used Claude AI to help with the planning and proof-reading of the API Endpoint Plan
