@@ -35,7 +35,7 @@ public class AuthController : ControllerBase
     public async Task<ActionResult<AuthResponse>> Register(RegisterRequest request)
     {
         // Only the two seeded roles are accepted, so nobody can register with an arbitrary role.
-        var roleName = AppRoles.AllRoles.FirstOrDefault(r => string.Equals(r, request.Role, StringComparison.OrdinalIgnoreCase));
+        var roleName = AppRoles.All.FirstOrDefault(r => string.Equals(r, request.Role, StringComparison.OrdinalIgnoreCase));
         if (roleName == null)
         {
             ModelState.AddModelError(nameof(request.Role), "Role must be either 'Organiser' or 'Participant'.");

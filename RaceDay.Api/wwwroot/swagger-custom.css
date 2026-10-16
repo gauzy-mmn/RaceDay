@@ -1,0 +1,21 @@
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.swagger-ui .topbar {
+    background-color: #0f766e;
+}
+
+.swagger-ui .info .title {
+    color: #0f766e;
+}
+
+.swagger-ui .opblock-tag {
+    font-size: 20px;
+    border-bottom: 2px solid #0f766e;
+}
+
+.swagger-ui .btn.execute {
+    background-color: #0f766e;
+    border-color: #0f766e;
+}

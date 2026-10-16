@@ -70,8 +70,18 @@ if (app.Environment.IsDevelopment())
     scope.ServiceProvider.GetRequiredService<RaceDayDbContext>().Database.Migrate();
 }
 
+app.UseStaticFiles();
 app.UseSwagger();
-app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "RaceDay API v1"));
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "RaceDay API v1");
+    c.DocumentTitle = "RaceDay API";
+    c.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.None); // endpoints start collapsed
+    c.DefaultModelsExpandDepth(-1);                                      // hides the Schemas section
+    c.DisplayRequestDuration();
+    c.EnableTryItOutByDefault();                                         // no need to click "Try it out"
+    c.InjectStylesheet("/swagger-custom.css");
+});
 
 if (!app.Environment.IsEnvironment("Testing"))
 {

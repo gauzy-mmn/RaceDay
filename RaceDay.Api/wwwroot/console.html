@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>RaceDay API Console</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #f1f5f4;
+            color: #1e293b;
+        }
+
+        header {
+            background: #0f766e;
+            color: #fff;
+            padding: 14px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+            header h1 {
+                margin: 0;
+                font-size: 20px;
+            }
+
+            header a {
+                color: #cdeeea;
+                margin-left: 16px;
+            }
+
+        .bar {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+            .bar.in {
+                background: #dcfce7;
+                color: #166534;
+            }
+
+            .bar.out {
+                background: #fee2e2;
+                color: #991b1b;
+            }
+
+        .mem {
+            padding: 8px 24px;
+            background: #e2f1ef;
+            font-size: 13px;
+        }
+
+            .mem span {
+                background: #fff;
+                border-radius: 12px;
+                padding: 2px 10px;
+                margin-right: 8px;
+            }
+
+        nav {
+            display: flex;
+            gap: 6px;
+            padding: 12px 24px 0;
+            flex-wrap: wrap;
+        }
+
+            nav button {
+                border: 0;
+                padding: 10px 18px;
+                border-radius: 8px 8px 0 0;
+                background: #d5e5e3;
+                cursor: pointer;
+                font-size: 15px;
+            }
+
+                nav button.active {
+                    background: #fff;
+                    color: #0f766e;
+                    font-weight: 600;
+                }
+
+        main {
+            background: #fff;
+            margin: 0 24px 24px;
+            padding: 20px;
+            border-radius: 0 8px 8px 8px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 16px;
+        }
+
+        .card {
+            border: 1px solid #dbe4e2;
+            border-radius: 10px;
+            padding: 14px;
+            background: #fafcfc;
+        }
+
+        .head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 4px;
+        }
+
+        .m {
+            color: #fff;
+            font-weight: 700;
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        .GET {
+            background: #2563eb;
+        }
+
+        .POST {
+            background: #16a34a;
+        }
+
+        .PUT {
+            background: #d97706;
+        }
+
+        .DELETE {
+            background: #dc2626;
+        }
+
+        .path {
+            font-family: Consolas, monospace;
+            font-size: 13px;
+        }
+
+        .who {
+            margin-left: auto;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: #e2e8f0;
+        }
+
+            .who.Organiser {
+                background: #fde68a;
+            }
+
+            .who.Participant {
+                background: #bfdbfe;
+            }
+
+            .who.Public {
+                background: #dcfce7;
+            }
+
+        .title {
+            font-weight: 600;
+            margin: 4px 0 8px;
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            color: #475569;
+            margin-top: 6px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 7px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .run {
+            margin-top: 10px;
+            padding: 8px 18px;
+            border: 0;
+            border-radius: 6px;
+            background: #0f766e;
+            color: #fff;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+            .run:hover {
+                background: #115e59;
+            }
+
+        .out {
+            margin-top: 10px;
+            display: none;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .s2 {
+            background: #16a34a;
+        }
+
+        .s401, .s403 {
+            background: #d97706;
+        }
+
+        .s4 {
+            background: #dc2626;
+        }
+
+        .s5 {
+            background: #7f1d1d;
+        }
+
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 10px;
+            border-radius: 6px;
+            max-height: 240px;
+            overflow: auto;
+            font-size: 12px;
+            margin: 6px 0 0;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>RaceDay API Console</h1>
+        <div><span id="bar" class="bar out">Checking...</span><a href="/swagger">Swagger</a></div>
+    </header>
+    <div class="mem" id="mem"></div>
+    <nav id="nav"></nav>
+    <main id="main"></main>
+
+    <script>const f = (n, t = 'text', v = '', mem, opts) => ({ n, t, v, mem, opts });
+const future = new Date(Date.now() + 60 * 864e5).toISOString().slice(0, 16);
+const eventFields = () => [f('name', 'text', 'Joburg 10km'), f('description', 'text', 'Fun run'),
+  f('eventDate', 'datetime-local', future), f('location', 'text', 'Johannesburg'),
+  f('distance', 'number', '10'), f('eventType', 'select', 'Run', null, ['Run', 'Walk', 'Cycle'])];
+
+// [method, path, title, who, fields, memKey for {id}/{eventId} in the path]
+const SECTIONS = {
+  Account: [
+    ['POST', '/api/auth/register', 'Register', 'Public', [f('firstName', 'text', 'Thandi'), f('lastName', 'text', 'Nkosi'),
+      f('email', 'email', 'thandi@test.com'), f('password', 'password', 'Passw0rd!123'), f('phoneNumber'),
+      f('role', 'select', 'Participant', null, ['Participant', 'Organiser'])]],
+    ['POST', '/api/auth/login', 'Log in', 'Public', [f('email', 'email', 'thandi@test.com'), f('password', 'password', 'Passw0rd!123')]],
+    ['POST', '/api/auth/logout', 'Log out', 'Any user', []],
+    ['GET', '/api/users/me', 'View my profile', 'Any user', []],
+    ['PUT', '/api/users/me', 'Update my profile', 'Any user', [f('firstName', 'text', 'Thandi'), f('lastName', 'text', 'Updated'), f('phoneNumber', 'text', '0821234567')]],
+  ],
+  Events: [
+    ['GET', '/api/events', 'List events', 'Public', []],
+    ['GET', '/api/events/{id}', 'Get one event', 'Public', [], 'eventId'],
+    ['POST', '/api/events', 'Create event', 'Organiser', eventFields()],
+    ['PUT', '/api/events/{id}', 'Update event (owner)', 'Organiser', eventFields(), 'eventId'],
+    ['DELETE', '/api/events/{id}', 'Delete event (owner)', 'Organiser', [], 'eventId'],
+  ],
+  Categories: [
+    ['GET', '/api/events/{eventId}/categories', 'List categories of an event', 'Public', [], 'eventId'],
+    ['POST', '/api/events/{eventId}/categories', 'Add category', 'Organiser', [f('name', 'text', 'Senior'), f('description', 'text', 'Open category')], 'eventId'],
+    ['PUT', '/api/categories/{id}', 'Update category', 'Organiser', [f('name', 'text', 'Under 20'), f('description')], 'categoryId'],
+    ['DELETE', '/api/categories/{id}', 'Delete category', 'Organiser', [], 'categoryId'],
+  ],
+  Enrolments: [
+    ['POST', '/api/events/{eventId}/enrolments', 'Enrol in an event', 'Participant', [f('categoryId', 'number', '', 'categoryId')], 'eventId'],
+    ['GET', '/api/enrolments/me', 'My enrolments', 'Participant', []],
+    ['GET', '/api/events/{eventId}/enrolments', 'Enrolments for my event', 'Organiser', [], 'eventId'],
+    ['DELETE', '/api/enrolments/{id}', 'Withdraw', 'Participant', [], 'enrolmentId'],
+  ],
+  Results: [
+    ['POST', '/api/events/{eventId}/results', 'Capture result', 'Organiser', [f('enrolmentId', 'number', '', 'enrolmentId'), f('finishTime', 'text', '00:45:30'), f('finishPosition', 'number', '1')], 'eventId'],
+    ['PUT', '/api/results/{id}', 'Correct result', 'Organiser', [f('finishTime', 'text', '00:44:10'), f('finishPosition', 'number', '2')], 'resultId'],
+    ['GET', '/api/results/me', 'My results', 'Participant', []],
+    ['GET', '/api/events/{eventId}/results', 'Results for my event', 'Organiser', [], 'eventId'],
+  ],
+};
+
+const mem = {};
+const $ = id => document.getElementById(id);
+
+function fieldHTML(x) {
+  const attrs = `data-f="${x.n}"${x.path ? ' data-path="1"' : ''}${x.mem ? ` data-mem="${x.mem}"` : ''}`;
+  if (x.t === 'select')
+    return `<label>${x.n}<select ${attrs}>${x.opts.map(o => `<option${o === x.v ? ' selected' : ''}>${o}</option>`).join('')}</select></label>`;
+  return `<label>${x.n}<input ${attrs} type="${x.t}" value="${x.v}"${x.t === 'number' ? ' step="any"' : ''}></label>`;
+}
+
+function render(section) {
+  document.querySelectorAll('nav button').forEach(b => b.classList.toggle('active', b.textContent === section));
+  const main = $('main'); main.innerHTML = '';
+  for (const [method, path, title, who, fields, pathMem] of SECTIONS[section]) {
+    const pathFields = [...path.matchAll(/\{(\w+)\}/g)].map(m => ({ n: m[1], t: 'number', v: '', mem: pathMem, path: true }));
+    const all = [...pathFields, ...fields];
+    const card = document.createElement('div'); card.className = 'card';
+    card.innerHTML = `<div class="head"><span class="m ${method}">${method}</span><span class="path">${path}</span><span class="who ${who}">${who}</span></div>
+      <div class="title">${title}</div>${all.map(fieldHTML).join('')}
+      <button class="run" type="button">Run</button>
+      <div class="out"><span class="status"></span><pre></pre></div>`;
+    card.querySelector('.run').onclick = () => run(method, path, fields.length > 0, card);
+    main.appendChild(card);
+  }
+  fillMem();
+}
+
+async function run(method, path, hasBody, card) {
+  let url = path; const body = {};
+  card.querySelectorAll('[data-f]').forEach(el => {
+    const n = el.dataset.f;
+    if (el.dataset.path) url = url.replace(`{${n}}`, encodeURIComponent(el.value));
+    else body[n] = el.value === '' ? null : (el.type === 'number' ? Number(el.value) : el.value);
+  });
+  const opt = { method, headers: {} };
+  if (hasBody) { opt.headers['Content-Type'] = 'application/json'; opt.body = JSON.stringify(body); }
+
+  const res = await fetch(url, opt);
+  const text = await res.text();
+  let data = null; try { data = JSON.parse(text); } catch { }
+
+  const out = card.querySelector('.out'), st = card.querySelector('.status');
+  out.style.display = 'block';
+  st.textContent = `${res.status} ${res.statusText}`;
+  st.className = 'status ' + (res.status === 401 ? 's401' : res.status === 403 ? 's403' : 's' + String(res.status)[0]);
+  card.querySelector('pre').textContent = data ? JSON.stringify(data, null, 2) : (text || '(no content)');
+  if (data) remember(data);
+  whoami();
+}
+
+function remember(d) {
+  const o = Array.isArray(d) ? d[d.length - 1] : d;
+  if (!o || typeof o !== 'object') return;
+  for (const k of ['eventId', 'categoryId', 'enrolmentId', 'resultId']) if (o[k] != null) mem[k] = o[k];
+  fillMem();
+}
+
+function fillMem() {
+  $('mem').innerHTML = 'Last ids (auto-filled): ' + (Object.keys(mem).length
+    ? Object.entries(mem).map(([k, v]) => `<span>${k}: ${v}</span>`).join('') : 'none yet');
+  document.querySelectorAll('[data-mem]').forEach(el => { if (mem[el.dataset.mem] != null) el.value = mem[el.dataset.mem]; });
+}
+
+async function whoami() {
+  const r = await fetch('/api/users/me'), bar = $('bar');
+  if (r.ok) { const u = await r.json(); bar.textContent = `Logged in: ${u.firstName} ${u.lastName} (${u.role})`; bar.className = 'bar in'; }
+  else { bar.textContent = 'Not logged in'; bar.className = 'bar out'; }
+}
+
+Object.keys(SECTIONS).forEach(s => {
+  const b = document.createElement('button'); b.textContent = s; b.onclick = () => render(s); $('nav').appendChild(b);
+});
+render('Account'); whoami();</script>
+</body>
+</html>

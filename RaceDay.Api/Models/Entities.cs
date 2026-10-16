@@ -4,7 +4,9 @@ public static class AppRoles
 {
     public const string Organiser = "Organiser";
     public const string Participant = "Participant";
-    public static readonly string[] AllRoles = { Organiser, Participant };
+
+    public static readonly string[] All =
+        { Organiser, Participant };
 }
 
 public class  Role
