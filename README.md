@@ -10,7 +10,17 @@ Participant : Create an account, browser events, enter an event by selecting a c
 A Github Actions workflow that checks on every push that /docs exist and contains the necessary files
 <img width="1532" height="352" alt="image" src="https://github.com/user-attachments/assets/5acf1d50-7195-4ee3-8230-e73398067536" />
 
+##PART 2 
+
+# GitHub Actions build and tests
+<img width="1228" height="57" alt="image" src="https://github.com/user-attachments/assets/675cc8cb-4d17-45c1-98db-a91ee9457732" />
+
+#Locale build and tests
+<img width="652" height="83" alt="image" src="https://github.com/user-attachments/assets/b0e7f69a-2650-4725-a54e-21757f7cf22a" />
+
+
 # Youtube Video explanation
-https://youtu.be/xH9m8uek9uQ
+Part 1: https://youtu.be/xH9m8uek9uQ
+Part 2: 
 # AI tool Disclosure
 Used Claude AI to help with the planning and proof-reading of the API Endpoint Plan
