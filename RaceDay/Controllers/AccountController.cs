@@ -6,6 +6,9 @@ using RaceDay.Services;
 using System.Net;
 using System.Net.Http.Json;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace RaceDay.Controllers
 {
@@ -223,5 +226,99 @@ namespace RaceDay.Controllers
                 $"Role: {role ?? "Unknown"}");
         }
 
+        [HttpGet]
+        [Microsoft.AspNetCore.Authorization.Authorize]
+        public async Task<IActionResult> CheckApiProfile()
+        {
+            try
+            {
+                using var response =
+                    await _apiService.GetMyProfileAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return Content(
+                        "Success! MVC is authenticated with the RaceDay API.");
+                }
+
+                if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    return Unauthorized(
+                        "The API did not recognise your login session.");
+                }
+
+                if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
+                {
+                    return StatusCode(403,
+                        "The API denied access to this profile.");
+                }
+
+                return StatusCode(502,
+                    "The API could not retrieve your profile.");
+            }
+            catch (InvalidOperationException)
+            {
+                return Unauthorized(
+                    "Your API authentication session is missing.");
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "API profile request failed.");
+
+                return StatusCode(503,
+                    "Unable to connect to RaceDay API.");
+            }
+        }
+
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout()
+        {
+            try
+            {
+                // Log out from the RaceDay API
+                using var response = await _apiService.LogoutAsync();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning(
+                        "RaceDay API logout returned status {StatusCode}",
+                        response.StatusCode);
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogWarning(
+                    ex, "Unable to connect to the API during logout.");
+            }
+            catch (TaskCanceledException ex)
+            {
+                _logger.LogWarning(
+                    ex, "API logout request timed out.");
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning(
+                    ex, "API authentication session was unavailable.");
+            }
+            finally
+            {
+                // Clear all session data
+                HttpContext.Session.Clear();
+
+                // Sign out from MVC authentication
+                await HttpContext.SignOutAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme);
+            }
+
+            // Redirect user to Login page
+            return RedirectToAction("Login", "Account");
+        }
+
     }
+
+
+
 }

@@ -68,6 +68,31 @@ namespace RaceDay.Services
             return await client.SendAsync(request);
         }
 
+        public async Task<HttpResponseMessage> LogoutAsync()
+        {
+            var cookie = _httpContextAccessor
+                .HttpContext?
+                .Session.GetString("ApiAuthCookie");
+
+            if (string.IsNullOrWhiteSpace(cookie))
+            {
+                throw new InvalidOperationException(
+                    "API authentication session is missing.");
+            }
+
+            var client = _httpClientFactory
+                .CreateClient("RaceDayApi");
+
+            using var request = new HttpRequestMessage(
+                HttpMethod.Post,
+                "api/auth/logout");
+
+            request.Headers.TryAddWithoutValidation(
+                "Cookie", cookie);
+
+            return await client.SendAsync(request);
+        }
+
 
     }
 }
