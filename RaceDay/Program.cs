@@ -17,7 +17,13 @@ builder.Services.AddHttpClient("RaceDayApi", client =>
     }
 
     client.BaseAddress = new Uri(apiUrl);
-});
+})
+.ConfigurePrimaryHttpMessageHandler(() =>
+    new HttpClientHandler
+    {
+        UseCookies = false
+    });
+
 
 // Add session services
 builder.Services.AddDistributedMemoryCache();
