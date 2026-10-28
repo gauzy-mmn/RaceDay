@@ -8,10 +8,14 @@ namespace RaceDay.Services
     {
         private readonly IHttpClientFactory _httpClientFactory;
 
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
         public RaceDayApiService(
-            IHttpClientFactory httpClientFactory)
+            IHttpClientFactory httpClientFactory,
+            IHttpContextAccessor httpContextAccessor)
         {
             _httpClientFactory = httpClientFactory;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         // Retrieve events from the existing RaceDay API
@@ -38,6 +42,32 @@ namespace RaceDay.Services
 
             return response;
         }
+
+        public async Task<HttpResponseMessage> GetMyProfileAsync()
+        {
+            var cookie = _httpContextAccessor
+                .HttpContext?
+                .Session.GetString("ApiAuthCookie");
+
+            if (string.IsNullOrWhiteSpace(cookie))
+            {
+                throw new InvalidOperationException(
+                    "API authentication session is missing.");
+            }
+
+            var client = _httpClientFactory
+                .CreateClient("RaceDayApi");
+
+            using var request = new HttpRequestMessage(
+                HttpMethod.Get,
+                "api/users/me");
+
+            request.Headers.TryAddWithoutValidation(
+                "Cookie", cookie);
+
+            return await client.SendAsync(request);
+        }
+
 
     }
 }
