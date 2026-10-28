@@ -203,6 +203,80 @@ namespace RaceDay.Controllers
             return View();
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(
+            RegisterViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            try
+            {
+                using var response =
+                    await _apiService.RegisterAsync(model);
+
+                if (response.StatusCode ==
+                    System.Net.HttpStatusCode.Created)
+                {
+                    TempData["SuccessMessage"] =
+                        "Account created successfully! Please log in.";
+
+                    return RedirectToAction("Login", "Account");
+                }
+
+                if (response.StatusCode ==
+                    System.Net.HttpStatusCode.Conflict)
+                {
+                    ModelState.AddModelError(
+                        nameof(model.Email),
+                        "An account with this email already exists.");
+
+                    return View(model);
+                }
+
+                if (response.StatusCode ==
+                    System.Net.HttpStatusCode.BadRequest)
+                {
+                    ModelState.AddModelError(
+                        "",
+                        "Invalid registration details. Please check your information.");
+
+                    return View(model);
+                }
+
+                ModelState.AddModelError(
+                    "",
+                    "Registration failed. Please try again.");
+
+                return View(model);
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(
+                    ex, "RaceDay API registration request failed.");
+
+                ModelState.AddModelError(
+                    "",
+                    "Unable to connect to the server.");
+
+                return View(model);
+            }
+            catch (TaskCanceledException ex)
+            {
+                _logger.LogWarning(
+                    ex, "RaceDay registration request timed out.");
+
+                ModelState.AddModelError(
+                    "",
+                    "The request timed out. Please try again.");
+
+                return View(model);
+            }
+        }
+
         // Temporary access-denied response
         [HttpGet]
         public IActionResult AccessDenied()
