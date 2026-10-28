@@ -1,14 +1,42 @@
 
+using Microsoft.AspNetCore.Authentication.Cookies;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add MVC services
+// MVC services
 builder.Services.AddControllersWithViews();
-builder.Services.AddScoped<RaceDay.Services.RaceDayApiService>();
 
-// Configure HTTP client for RaceDay API
+// Cookie authentication
+builder.Services
+    .AddAuthentication(
+        CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(
+        CookieAuthenticationDefaults.AuthenticationScheme,
+        options =>
+        {
+            options.LoginPath = "/Account/Login";
+            options.AccessDeniedPath = "/Account/AccessDenied";
+
+            options.Cookie.Name = "RaceDay.MvcAuth";
+            options.Cookie.HttpOnly = true;
+            options.Cookie.SecurePolicy =
+                CookieSecurePolicy.Always;
+            options.Cookie.SameSite = SameSiteMode.Lax;
+
+            options.ExpireTimeSpan =
+                TimeSpan.FromMinutes(30);
+
+            options.SlidingExpiration = true;
+        });
+
+// Authorization
+builder.Services.AddAuthorization();
+
+// API HttpClient
 builder.Services.AddHttpClient("RaceDayApi", client =>
 {
-    var apiUrl = builder.Configuration["ApiSettings:BaseUrl"];
+    var apiUrl =
+        builder.Configuration["ApiSettings:BaseUrl"];
 
     if (string.IsNullOrWhiteSpace(apiUrl))
     {
@@ -24,40 +52,45 @@ builder.Services.AddHttpClient("RaceDayApi", client =>
         UseCookies = false
     });
 
-
-// Add session services
+// Session management
 builder.Services.AddDistributedMemoryCache();
-
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SecurePolicy =
+        CookieSecurePolicy.Always;
     options.Cookie.SameSite = SameSiteMode.Lax;
 });
 
+// Register API service
+builder.Services.AddScoped<
+    RaceDay.Services.RaceDayApiService>();
+
 var app = builder.Build();
 
-// Configure error handling
+// Error handling
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
-// Configure middleware
+// Middleware
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
 
-// Enable session management
 app.UseSession();
 
+// Authentication must run before authorization
+app.UseAuthentication();
 app.UseAuthorization();
 
-// Configure default MVC route
+// MVC routes
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
