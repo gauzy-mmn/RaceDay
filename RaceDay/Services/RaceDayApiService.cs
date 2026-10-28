@@ -94,5 +94,27 @@ namespace RaceDay.Services
         }
 
 
+        public async Task<HttpResponseMessage> RegisterAsync(
+            RegisterViewModel model)
+        {
+            var client = _httpClientFactory
+                .CreateClient("RaceDayApi");
+
+            var response = await client.PostAsJsonAsync(
+                "api/auth/register",
+                new
+                {
+                    firstName = model.FirstName,
+                    lastName = model.LastName,
+                    email = model.Email,
+                    phoneNumber = model.PhoneNumber,
+                    password = model.Password,
+                    role = model.Role
+                });
+
+            return response;
+        }
+
+
     }
 }
