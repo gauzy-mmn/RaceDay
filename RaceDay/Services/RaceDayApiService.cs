@@ -1,5 +1,6 @@
 ﻿using System.Net.Http;
-
+using System.Net.Http.Json;
+using RaceDay.Models;
 
 namespace RaceDay.Services
 {
@@ -21,5 +22,22 @@ namespace RaceDay.Services
 
             return await client.GetStringAsync("api/events");
         }
+
+        public async Task<HttpResponseMessage> LoginAsync(
+            LoginViewModel model)
+        {
+            var client = _httpClientFactory.CreateClient("RaceDayApi");
+
+            var response = await client.PostAsJsonAsync(
+                "api/auth/login",
+                new
+                {
+                    email = model.Email,
+                    password = model.Password
+                });
+
+            return response;
+        }
+
     }
 }
