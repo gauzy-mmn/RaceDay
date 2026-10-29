@@ -83,6 +83,135 @@ namespace RaceDay.Controllers
 
             return View(model);
         }
+        [HttpGet]
+        public async Task<IActionResult> EditEvent(int id)
+        {
+            if (id <= 0)
+            {
+                return BadRequest();
+            }
+
+            try
+            {
+                // Retrieve the event from RaceDay API
+                var raceEvent =
+                    await _apiService.GetEventByIdAsync(id);
+
+                if (raceEvent == null)
+                {
+                    return NotFound();
+                }
+
+                // Get the logged-in Organiser's ID
+                var userId = User.FindFirstValue(
+                    ClaimTypes.NameIdentifier);
+
+                if (!int.TryParse(userId, out int organiserId))
+                {
+                    return Challenge();
+                }
+
+                // Check event ownership
+                if (raceEvent.OrganiserId != organiserId)
+                {
+                    return Forbid();
+                }
+
+                // Display the Edit Event form
+                return View(raceEvent);
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(
+                    ex, "Unable to retrieve event {EventId}", id);
+
+                TempData["ErrorMessage"] =
+                    "Unable to load event details.";
+
+                return RedirectToAction("Events");
+            }
+            catch (System.Text.Json.JsonException ex)
+            {
+                _logger.LogError(
+                    ex, "Invalid event response for {EventId}", id);
+
+                TempData["ErrorMessage"] =
+                    "Unable to process event details.";
+
+                return RedirectToAction("Events");
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditEvent(
+            int id, EventViewModel model)
+        {
+            if (id <= 0)
+            {
+                return BadRequest();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                model.EventId = id;
+                return View(model);
+            }
+
+            try
+            {
+                // Send updated information to the API
+                using var response =
+                    await _apiService.UpdateEventAsync(id, model);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    TempData["SuccessMessage"] =
+                        "Event updated successfully!";
+
+                    return RedirectToAction("Events");
+                }
+
+                if (response.StatusCode ==
+                    System.Net.HttpStatusCode.NotFound)
+                {
+                    return NotFound();
+                }
+
+                if (response.StatusCode ==
+                    System.Net.HttpStatusCode.Forbidden)
+                {
+                    return Forbid();
+                }
+
+                if (response.StatusCode ==
+                    System.Net.HttpStatusCode.Unauthorized)
+                {
+                    return Challenge();
+                }
+
+                ModelState.AddModelError(
+                    "",
+                    "Unable to update event. Check the details.");
+
+                model.EventId = id;
+                return View(model);
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(
+                    ex, "Unable to update event {EventId}", id);
+
+                ModelState.AddModelError(
+                    "",
+                    "Unable to connect to RaceDay API.");
+
+                model.EventId = id;
+                return View(model);
+            }
+        }
+
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
