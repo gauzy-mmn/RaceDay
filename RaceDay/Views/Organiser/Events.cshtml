@@ -8,6 +8,13 @@
     ViewData["Title"] = "Manage Events";
 }
 
+@if (TempData["SuccessMessage"] is string message)
+{
+    <div class="alert alert-success" role="alert">
+        @message
+    </div>
+}
+
 <div class="container py-5">
 
     <div class="d-flex justify-content-between
@@ -17,6 +24,11 @@
             <p class="text-muted">
                 View and manage your race events.
             </p>
+            <a asp-controller="Organiser"
+               asp-action="CreateEvent"
+               class="btn btn-primary mb-3">
+                + Create New Event
+            </a>
         </div>
     </div>
 

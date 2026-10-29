@@ -126,6 +126,70 @@ namespace RaceDay.Services
             return events ?? new List<EventViewModel>();
         }
 
+        public async Task<HttpResponseMessage> CreateEventAsync(
+            EventViewModel model)
+        {
+            // Retrieve the logged-in user's API session
+            var cookie = _httpContextAccessor
+                .HttpContext?
+                .Session.GetString("ApiAuthCookie");
+
+            if (string.IsNullOrWhiteSpace(cookie))
+            {
+                throw new InvalidOperationException(
+                    "You must be logged in to create an event.");
+            }
+
+            // Create an HTTP client
+            var client = _httpClientFactory
+                .CreateClient("RaceDayApi");
+
+            // Prepare the event information
+            var eventData = new
+            {
+                name = model.Name,
+                description = model.Description,
+                eventDate = model.EventDate,
+                location = model.Location,
+                distance = model.Distance,
+                eventType = model.EventType
+            };
+
+            // Create an authenticated POST request
+            using var request = new HttpRequestMessage(
+                HttpMethod.Post,
+                "api/events");
+
+            request.Headers.TryAddWithoutValidation(
+                "Cookie", cookie);
+
+            request.Content = JsonContent.Create(eventData);
+
+            // Send the event to the API
+            return await client.SendAsync(request);
+        }
+
+        public async Task<EventViewModel?> GetEventByIdAsync(int id)
+        {
+            var client = _httpClientFactory
+                .CreateClient("RaceDayApi");
+
+            using var response = await client.GetAsync(
+                $"api/events/{id}");
+
+            if (response.StatusCode ==
+                System.Net.HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+
+            response.EnsureSuccessStatusCode();
+
+            return await response.Content
+                .ReadFromJsonAsync<EventViewModel>();
+        }
+
+
 
     }
 }
