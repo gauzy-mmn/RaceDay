@@ -1,0 +1,87 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+@model List<RaceDay.Models.EventViewModel>
+
+@{
+    ViewData["Title"] = "Manage Events";
+}
+
+@if (TempData["SuccessMessage"] is string message)
+{
+    <div class="alert alert-success" role="alert">
+        @message
+    </div>
+}
+
+<div class="container py-5">
+
+    <div class="d-flex justify-content-between
+        align-items-center mb-4">
+        <div>
+            <h1 class="fw-bold">Manage Events</h1>
+            <p class="text-muted">
+                View and manage your race events.
+            </p>
+            <a asp-controller="Organiser"
+               asp-action="CreateEvent"
+               class="btn btn-primary mb-3">
+                + Create New Event
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-info">
+            No events found.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Event Name</th>
+                        <th>Date</th>
+                        <th>Location</th>
+                        <th>Distance</th>
+                        <th>Type</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var raceEvent in Model)
+                    {
+                        <tr>
+                            <td>@raceEvent.Name</td>
+                            <td>
+                                @raceEvent.EventDate.ToString("dd MMM yyyy")
+                            </td>
+                            <td>@raceEvent.Location</td>
+                            <td>@raceEvent.Distance km</td>
+                            <td>@raceEvent.EventType</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    <a asp-controller="Organiser"
+       asp-action="Index"
+       class="btn btn-outline-secondary mt-3">
+        Back to Dashboard
+    </a>
+
+</div>
+
