@@ -115,6 +115,17 @@ namespace RaceDay.Services
             return response;
         }
 
+        public async Task<List<EventViewModel>> GetEventListAsync()
+        {
+            var client = _httpClientFactory
+                .CreateClient("RaceDayApi");
+
+            var events = await client.GetFromJsonAsync<List<EventViewModel>>(
+                "api/events");
+
+            return events ?? new List<EventViewModel>();
+        }
+
 
     }
 }
