@@ -8,8 +8,8 @@ namespace RaceDay.Controllers
     {
         public IActionResult Index()
         {
-            return Content(
-                "Welcome to your RaceDay Organiser Dashboard!");
+            return View();
         }
     }
 }
+
