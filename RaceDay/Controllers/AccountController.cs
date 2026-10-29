@@ -169,8 +169,24 @@ namespace RaceDay.Controllers
                         IsPersistent = false
                     });
 
-                // Temporary redirect until dashboards exist
-                return RedirectToAction("Index", "Home");
+
+                if (role == "Organiser")
+                {
+                    return RedirectToAction("Index", "Organiser");
+                }
+
+                if (role == "Participant")
+                {
+                    return RedirectToAction("Index", "Participant");
+                }
+
+                await HttpContext.SignOutAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme);
+
+                HttpContext.Session.Clear();
+
+                return RedirectToAction("Login", "Account");
+
             }
             catch (HttpRequestException ex)
             {
