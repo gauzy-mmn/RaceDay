@@ -189,6 +189,48 @@ namespace RaceDay.Services
                 .ReadFromJsonAsync<EventViewModel>();
         }
 
+        public async Task<HttpResponseMessage> UpdateEventAsync(
+            int id,
+            EventViewModel model)
+        {
+            // Retrieve the current user's API authentication
+            var cookie = _httpContextAccessor
+                .HttpContext?
+                .Session.GetString("ApiAuthCookie");
+
+            if (string.IsNullOrWhiteSpace(cookie))
+            {
+                throw new InvalidOperationException(
+                    "You must be logged in to update an event.");
+            }
+
+            var client = _httpClientFactory
+                .CreateClient("RaceDayApi");
+
+            // Prepare updated event details
+            var eventData = new
+            {
+                name = model.Name,
+                description = model.Description,
+                eventDate = model.EventDate,
+                location = model.Location,
+                distance = model.Distance,
+                eventType = model.EventType
+            };
+
+            // Send authenticated PUT request
+            using var request = new HttpRequestMessage(
+                HttpMethod.Put,
+                $"api/events/{id}");
+
+            request.Headers.TryAddWithoutValidation(
+                "Cookie", cookie);
+
+            request.Content = JsonContent.Create(eventData);
+
+            return await client.SendAsync(request);
+        }
+
 
 
     }
