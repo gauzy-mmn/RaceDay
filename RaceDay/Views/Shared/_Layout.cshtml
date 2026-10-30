@@ -38,6 +38,7 @@
                                 </span>
                             </li>
 
+                           
                             @if (User.IsInRole("Participant"))
                             {
                                 <li class="nav-item">
@@ -47,7 +48,16 @@
                                         Discover Events
                                     </a>
                                 </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark"
+                                       asp-controller="Participant"
+                                       asp-action="MyEnrolments">
+                                        My Enrolments
+                                    </a>
+                                </li>
                             }
+
 
 
                             <li class="nav-item">

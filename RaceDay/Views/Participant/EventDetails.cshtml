@@ -4,6 +4,23 @@
     ViewData["Title"] = "Event Details";
 }
 
+@if (TempData["SuccessMessage"] is string successMessage)
+{
+    <div class="alert alert-success"
+         role="status">
+        @successMessage
+    </div>
+}
+
+@if (TempData["ErrorMessage"] is string errorMessage)
+{
+    <div class="alert alert-danger"
+         role="alert">
+        @errorMessage
+    </div>
+}
+
+
 <div class="container py-5">
 
     <!-- Back Navigation -->
@@ -129,10 +146,58 @@
 
                         </div>
 
-                        <div class="alert alert-light mt-3 mb-0">
-                            Category enrolment will be
-                            available in the next step.
+                        <!-- Participant Enrolment Form -->
+                        <div class="mt-4">
+
+                            <h5 class="fw-bold mb-3">
+                                Enrol in This Event
+                            </h5>
+
+                            <form asp-controller="Participant"
+                                  asp-action="EnrolEvent"
+                                  asp-route-eventId="@Model.Event.EventId"
+                                  method="post">
+
+                                @Html.AntiForgeryToken()
+
+                                <!-- Category Selection -->
+                                <div class="mb-3">
+
+                                    <label for="categoryId"
+                                           class="form-label">
+                                        Select Race Category
+                                    </label>
+
+                                    <select id="categoryId"
+                                            name="categoryId"
+                                            class="form-select"
+                                            required>
+
+                                        <option value="">
+                                            Choose a category
+                                        </option>
+
+                                        @foreach (var category in Model.Categories)
+                                        {
+                                            <option value="@category.CategoryId">
+                                                @category.Name
+                                            </option>
+                                        }
+
+                                    </select>
+
+                                </div>
+
+                                <!-- Enrolment Button -->
+                                <button type="submit"
+                                        class="btn btn-primary w-100">
+                                    Enrol in Event
+                                </button>
+
+                            </form>
+
                         </div>
+
                     }
 
                 </div>

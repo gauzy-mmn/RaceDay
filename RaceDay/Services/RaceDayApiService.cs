@@ -1,6 +1,4 @@
-﻿using System.Net.Http;
-using System.Net.Http.Json;
-using RaceDay.Models;
+﻿using RaceDay.Models;
 
 namespace RaceDay.Services
 {
@@ -520,6 +518,45 @@ namespace RaceDay.Services
             return await client.SendAsync(request);
         }
 
+
+        public async Task<List<EnrolmentViewModel>> GetMyEnrolmentsAsync()
+        {
+            // Get the current Participant's API authentication cookie
+            var cookie = _httpContextAccessor
+                .HttpContext?
+                .Session.GetString("ApiAuthCookie");
+
+            if (string.IsNullOrWhiteSpace(cookie))
+            {
+                throw new InvalidOperationException(
+                    "You must be logged in to view your enrolments.");
+            }
+
+            // Create the API client
+            var client = _httpClientFactory
+                .CreateClient("RaceDayApi");
+
+            // Prepare authenticated GET request
+            using var request = new HttpRequestMessage(
+                HttpMethod.Get,
+                "api/enrolments/me");
+
+            // Attach the user's API cookie
+            request.Headers.TryAddWithoutValidation(
+                "Cookie", cookie);
+
+            // Send request to RaceDay API
+            using var response = await client.SendAsync(request);
+
+            // Check whether the API request succeeded
+            response.EnsureSuccessStatusCode();
+
+            // Convert JSON response into enrolment objects
+            var enrolments = await response.Content
+                .ReadFromJsonAsync<List<EnrolmentViewModel>>();
+
+            return enrolments ?? new List<EnrolmentViewModel>();
+        }
 
 
     }
