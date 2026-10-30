@@ -1,0 +1,100 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+@model List<RaceDay.Models.EnrolmentViewModel>
+
+@{
+    ViewData["Title"] = "Event Enrolments";
+
+    int eventId = ViewBag.EventId;
+    string eventName = ViewBag.EventName ?? "Event";
+}
+
+<div class="container py-5">
+
+    <!-- Page Header -->
+    <div class="mb-4">
+        <h1 class="fw-bold">Event Enrolments</h1>
+
+        <p class="text-muted">
+            View participants registered for @eventName
+        </p>
+    </div>
+
+    <!-- Summary -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+
+            <h6 class="text-muted">
+                Total Enrolments
+            </h6>
+
+            <h2 class="fw-bold mb-0">
+                @Model.Count
+            </h2>
+
+        </div>
+    </div>
+
+    <!-- Enrolment List -->
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info" role="status">
+            No participants have enrolled
+            in this event yet.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+
+            <table class="table table-striped table-hover">
+
+                <thead>
+                    <tr>
+                        <th scope="col">Participant</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Category</th>
+                        <th scope="col">Enrolment Date</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var enrolment in Model)
+                    {
+                        <tr>
+                            <td>
+                                @enrolment.ParticipantName
+                            </td>
+
+                            <td>
+                                @enrolment.ParticipantEmail
+                            </td>
+
+                            <td>
+                                @enrolment.CategoryName
+                            </td>
+
+                            <td>
+                                @enrolment.EnrolmentDate
+                                .ToString("dd MMM yyyy")
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+
+        </div>
+    }
+
+    <!-- Navigation -->
+    <a asp-controller="Organiser"
+       asp-action="Events"
+       class="btn btn-outline-secondary mt-3">
+        Back to Events
+    </a>
+
+</div>
+

@@ -75,6 +75,13 @@
                             <td>
                                 <div class="d-flex gap-2">
 
+                                    <a asp-controller="Organiser"
+                                       asp-action="Enrolments"
+                                       asp-route-eventId="@raceEvent.EventId"
+                                       class="btn btn-sm btn-outline-secondary">
+                                        Enrolments
+                                    </a>
+
 
                                     <a asp-controller="Organiser"
                                        asp-action="EditEvent"

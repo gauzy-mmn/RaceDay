@@ -54,6 +54,7 @@
                     <tr>
                         <th>Category Name</th>
                         <th>Description</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
 
@@ -69,6 +70,29 @@
                                     ? "No description"
                                     : category.Description)
                             </td>
+
+                            <td>
+                                <div class="d-flex gap-2">
+
+                                    <a asp-controller="Organiser"
+                                       asp-action="EditCategory"
+                                       asp-route-eventId="@eventId"
+                                       asp-route-categoryId="@category.CategoryId"
+                                       class="btn btn-sm btn-outline-primary">
+                                        Edit
+                                    </a>
+
+                                    <a asp-controller="Organiser"
+                                       asp-action="DeleteCategory"
+                                       asp-route-eventId="@eventId"
+                                       asp-route-categoryId="@category.CategoryId"
+                                       class="btn btn-sm btn-outline-danger">
+                                        Delete
+                                    </a>
+
+                                </div>
+                            </td>
+
                         </tr>
                     }
                 </tbody>

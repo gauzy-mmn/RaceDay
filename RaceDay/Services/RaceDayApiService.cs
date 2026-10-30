@@ -338,6 +338,188 @@ namespace RaceDay.Services
             return categories ?? new List<CategoryViewModel>();
         }
 
+        public async Task<HttpResponseMessage> UpdateCategoryAsync(
+            int categoryId,
+            CategoryViewModel model)
+        {
+            if (categoryId <= 0)
+            {
+                throw new ArgumentException(
+                    "Invalid category ID.", nameof(categoryId));
+            }
+
+            // Retrieve the logged-in user's API cookie
+            var cookie = _httpContextAccessor
+                .HttpContext?
+                .Session.GetString("ApiAuthCookie");
+
+            if (string.IsNullOrWhiteSpace(cookie))
+            {
+                throw new InvalidOperationException(
+                    "You must be logged in to update a category.");
+            }
+
+            var client = _httpClientFactory
+                .CreateClient("RaceDayApi");
+
+            // The API expects only name and description
+            var categoryData = new
+            {
+                name = model.Name,
+                description = model.Description
+            };
+
+            using var request = new HttpRequestMessage(
+                HttpMethod.Put,
+                $"api/categories/{categoryId}");
+
+            request.Headers.TryAddWithoutValidation(
+                "Cookie", cookie);
+
+            request.Content = JsonContent.Create(categoryData);
+
+            return await client.SendAsync(request);
+        }
+
+        public async Task<HttpResponseMessage> DeleteCategoryAsync(
+            int categoryId)
+        {
+            // Validate the category ID
+            if (categoryId <= 0)
+            {
+                throw new ArgumentException(
+                    "Invalid category ID.",
+                    nameof(categoryId));
+            }
+
+            // Retrieve the current user's API session
+            var cookie = _httpContextAccessor
+                .HttpContext?
+                .Session.GetString("ApiAuthCookie");
+
+            if (string.IsNullOrWhiteSpace(cookie))
+            {
+                throw new InvalidOperationException(
+                    "You must be logged in to delete a category.");
+            }
+
+            // Create the API client
+            var client = _httpClientFactory
+                .CreateClient("RaceDayApi");
+
+            // Prepare the DELETE request
+            using var request = new HttpRequestMessage(
+                HttpMethod.Delete,
+                $"api/categories/{categoryId}");
+
+            // Attach the authenticated user's API cookie
+            request.Headers.TryAddWithoutValidation(
+                "Cookie", cookie);
+
+            // Send the request to RaceDay API
+            return await client.SendAsync(request);
+        }
+
+        public async Task<List<EnrolmentViewModel>>
+            GetEventEnrolmentsAsync(int eventId)
+        {
+            // Validate the event ID
+            if (eventId <= 0)
+            {
+                throw new ArgumentException(
+                    "Invalid event ID.",
+                    nameof(eventId));
+            }
+
+            // Retrieve the current user's API session
+            var cookie = _httpContextAccessor
+                .HttpContext?
+                .Session.GetString("ApiAuthCookie");
+
+            if (string.IsNullOrWhiteSpace(cookie))
+            {
+                throw new InvalidOperationException(
+                    "You must be logged in to view enrolments.");
+            }
+
+            // Create the API client
+            var client = _httpClientFactory
+                .CreateClient("RaceDayApi");
+
+            // Prepare the authenticated GET request
+            using var request = new HttpRequestMessage(
+                HttpMethod.Get,
+                $"api/events/{eventId}/enrolments");
+
+            request.Headers.TryAddWithoutValidation(
+                "Cookie", cookie);
+
+            // Send the request to RaceDay API
+            using var response = await client.SendAsync(request);
+
+            // Reject unsuccessful API responses
+            response.EnsureSuccessStatusCode();
+
+            // Convert JSON response into enrolment objects
+            var enrolments = await response.Content
+                .ReadFromJsonAsync<List<EnrolmentViewModel>>();
+
+            return enrolments ?? new List<EnrolmentViewModel>();
+        }
+
+        public async Task<HttpResponseMessage> EnrolEventAsync(
+            int eventId,
+            int categoryId)
+        {
+            // Validate the supplied IDs
+            if (eventId <= 0)
+            {
+                throw new ArgumentException(
+                    "Invalid event ID.",
+                    nameof(eventId));
+            }
+
+            if (categoryId <= 0)
+            {
+                throw new ArgumentException(
+                    "Invalid category ID.",
+                    nameof(categoryId));
+            }
+
+            // Retrieve the logged-in Participant's API cookie
+            var cookie = _httpContextAccessor
+                .HttpContext?
+                .Session.GetString("ApiAuthCookie");
+
+            if (string.IsNullOrWhiteSpace(cookie))
+            {
+                throw new InvalidOperationException(
+                    "You must be logged in to enrol in an event.");
+            }
+
+            // Create the API client
+            var client = _httpClientFactory
+                .CreateClient("RaceDayApi");
+
+            // Prepare the enrolment request
+            using var request = new HttpRequestMessage(
+                HttpMethod.Post,
+                $"api/events/{eventId}/enrolments");
+
+            // Attach the authenticated Participant's API cookie
+            request.Headers.TryAddWithoutValidation(
+                "Cookie", cookie);
+
+            // Send the selected category
+            request.Content = JsonContent.Create(new
+            {
+                categoryId = categoryId
+            });
+
+            // Send request to RaceDay API
+            return await client.SendAsync(request);
+        }
+
 
 
     }

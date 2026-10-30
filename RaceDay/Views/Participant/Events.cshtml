@@ -1,0 +1,144 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+@model List<RaceDay.Models.EventViewModel>
+
+@{
+    ViewData["Title"] = "Discover Events";
+}
+
+<div class="container py-5">
+
+    <div class="mb-4">
+        <h1 class="fw-bold">Discover Events</h1>
+        <p class="text-muted">
+            Find your next race and take on a new challenge.
+        </p>
+    </div>
+
+    <!-- Search and Filters -->
+    <form asp-controller="Participant"
+          asp-action="Events"
+          method="get"
+          class="row g-3 mb-4">
+
+        <div class="col-md-5">
+            <label for="location" class="form-label">
+                Location
+            </label>
+
+            <input type="text"
+                   id="location"
+                   name="location"
+                   value="@ViewBag.Location"
+                   class="form-control"
+                   placeholder="Search by location" />
+        </div>
+
+        <div class="col-md-4">
+            <label for="eventType" class="form-label">
+                Event Type
+            </label>
+
+            <select id="eventType"
+                    name="eventType"
+                    class="form-select">
+                <option value="">All event types</option>
+
+                @foreach (var type in Model
+                    .Select(e => e.EventType)
+                    .Where(t => !string.IsNullOrWhiteSpace(t))
+                    .Distinct()
+                    .OrderBy(t => t))
+                {
+                    if (type == (string?)ViewBag.EventType)
+                    {
+                        <option value="@type" selected>
+                            @type
+                        </option>
+                    }
+                    else
+                    {
+                        <option value="@type">
+                            @type
+                        </option>
+                    }
+                }
+            </select>
+        </div>
+
+        <div class="col-md-3 d-flex align-items-end">
+            <button type="submit"
+                    class="btn btn-primary w-100">
+                Search Events
+            </button>
+        </div>
+    </form>
+
+    @if (ViewBag.ErrorMessage != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            @ViewBag.ErrorMessage
+        </div>
+    }
+    else if (!Model.Any())
+    {
+        <div class="alert alert-info" role="status">
+            No upcoming events match your search.
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+
+            @foreach (var raceEvent in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body p-4">
+
+                            <span class="badge bg-secondary mb-3">
+                                @raceEvent.EventType
+                            </span>
+
+                            <h4 class="fw-bold">
+                                @raceEvent.Name
+                            </h4>
+
+                            <p class="text-muted">
+                                @raceEvent.Description
+                            </p>
+
+                            <p class="mb-2">
+                                <strong>Date:</strong>
+                                @raceEvent.EventDate.ToString(
+                                    "dd MMM yyyy HH:mm")
+                            </p>
+
+                            <p class="mb-2">
+                                <strong>Location:</strong>
+                                @raceEvent.Location
+                            </p>
+
+                            <p class="mb-3">
+                                <strong>Distance:</strong>
+                                @raceEvent.Distance km
+                            </p>
+
+                            <a asp-controller="Participant"
+                               asp-action="EventDetails"
+                               asp-route-id="@raceEvent.EventId"
+                               class="btn btn-outline-primary">
+                                View Details
+                            </a>
+
+                        </div>
+                    </div>
+                </div>
+            }
+
+        </div>
+    }
+
+</div>

@@ -1,0 +1,93 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+@model RaceDay.Models.CategoryViewModel
+
+@{
+    ViewData["Title"] = "Delete Category";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+
+            <h1 class="fw-bold mb-3">
+                Delete Category
+            </h1>
+
+            <p class="text-muted mb-4">
+                Event: @ViewBag.EventName
+            </p>
+
+            <div class="alert alert-warning">
+                <strong>Warning!</strong>
+                Are you sure you want to permanently
+                delete this category?
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+
+                    <h4 class="fw-bold mb-3">
+                        @Model.Name
+                    </h4>
+
+                    <dl class="row">
+                        <dt class="col-sm-4">
+                            Category Name
+                        </dt>
+                        <dd class="col-sm-8">
+                            @Model.Name
+                        </dd>
+
+                        <dt class="col-sm-4">
+                            Description
+                        </dt>
+                        <dd class="col-sm-8">
+                            @(string.IsNullOrWhiteSpace(
+                                Model.Description)
+                                ? "No description"
+                                : Model.Description)
+                        </dd>
+                    </dl>
+
+                    <p class="text-muted">
+                        Categories with enrolled participants
+                        cannot be deleted.
+                    </p>
+
+                    <hr />
+
+                    <form asp-controller="Organiser"
+                          asp-action="DeleteCategory"
+                          asp-route-eventId="@Model.EventId"
+                          asp-route-categoryId="@Model.CategoryId"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <div class="d-flex gap-2">
+
+                            <button type="submit"
+                                    class="btn btn-danger">
+                                Yes, Delete Category
+                            </button>
+
+                            <a asp-controller="Organiser"
+                               asp-action="Categories"
+                               asp-route-eventId="@Model.EventId"
+                               class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+

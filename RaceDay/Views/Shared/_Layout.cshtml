@@ -38,6 +38,18 @@
                                 </span>
                             </li>
 
+                            @if (User.IsInRole("Participant"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark"
+                                       asp-controller="Participant"
+                                       asp-action="Events">
+                                        Discover Events
+                                    </a>
+                                </li>
+                            }
+
+
                             <li class="nav-item">
                                 <form asp-controller="Account"
                                       asp-action="Logout"

@@ -1,0 +1,145 @@
+﻿@model RaceDay.Models.EventDetailsViewModel
+
+@{
+    ViewData["Title"] = "Event Details";
+}
+
+<div class="container py-5">
+
+    <!-- Back Navigation -->
+    <div class="mb-4">
+        <a asp-controller="Participant"
+           asp-action="Events"
+           class="btn btn-outline-secondary">
+            Back to Events
+        </a>
+    </div>
+
+    <!-- Event Information -->
+    <div class="mb-4">
+
+        <span class="badge bg-secondary mb-3">
+            @Model.Event.EventType
+        </span>
+
+        <h1 class="fw-bold">
+            @Model.Event.Name
+        </h1>
+
+        <p class="text-muted">
+            @Model.Event.Description
+        </p>
+
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Event Details -->
+        <div class="col-lg-7">
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+
+                    <h4 class="fw-bold mb-4">
+                        Race Information
+                    </h4>
+
+                    <dl class="row">
+
+                        <dt class="col-sm-4">
+                            Event Date
+                        </dt>
+                        <dd class="col-sm-8">
+                            @Model.Event.EventDate.ToString(
+                                "dd MMM yyyy HH:mm")
+                        </dd>
+
+                        <dt class="col-sm-4">
+                            Location
+                        </dt>
+                        <dd class="col-sm-8">
+                            @Model.Event.Location
+                        </dd>
+
+                        <dt class="col-sm-4">
+                            Distance
+                        </dt>
+                        <dd class="col-sm-8">
+                            @Model.Event.Distance km
+                        </dd>
+
+                        <dt class="col-sm-4">
+                            Event Type
+                        </dt>
+                        <dd class="col-sm-8">
+                            @Model.Event.EventType
+                        </dd>
+
+                    </dl>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Available Categories -->
+        <div class="col-lg-5">
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+
+                    <h4 class="fw-bold mb-3">
+                        Available Categories
+                    </h4>
+
+                    @if (!Model.Categories.Any())
+                    {
+                        <div class="alert alert-info">
+                            No categories are available
+                            for this event yet.
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">
+                            View the categories available
+                            for this race.
+                        </p>
+
+                        <div class="list-group">
+
+                            @foreach (var category
+                                in Model.Categories)
+                            {
+                                <div class="list-group-item">
+
+                                    <h6 class="fw-bold mb-1">
+                                        @category.Name
+                                    </h6>
+
+                                    <p class="text-muted mb-0">
+                                        @(string.IsNullOrWhiteSpace(
+                                            category.Description)
+                                            ? "No description available."
+                                            : category.Description)
+                                    </p>
+
+                                </div>
+                            }
+
+                        </div>
+
+                        <div class="alert alert-light mt-3 mb-0">
+                            Category enrolment will be
+                            available in the next step.
+                        </div>
+                    }
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
