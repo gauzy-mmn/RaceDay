@@ -298,6 +298,357 @@ namespace RaceDay.Controllers
             }
         }
 
+        [HttpGet]
+        public async Task<IActionResult> DeleteEvent(int id)
+        {
+            if (id <= 0)
+            {
+                return BadRequest();
+            }
+
+            try
+            {
+                var raceEvent =
+                    await _apiService.GetEventByIdAsync(id);
+
+                if (raceEvent == null)
+                {
+                    return NotFound();
+                }
+
+                // Verify event ownership
+                var userId = User.FindFirstValue(
+                    ClaimTypes.NameIdentifier);
+
+                if (!int.TryParse(userId, out int organiserId))
+                {
+                    return Challenge();
+                }
+
+                if (raceEvent.OrganiserId != organiserId)
+                {
+                    return Forbid();
+                }
+
+                // Display confirmation page
+                return View(raceEvent);
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(
+                    ex, "Failed to load event {EventId}", id);
+
+                TempData["ErrorMessage"] =
+                    "Unable to load event details.";
+
+                return RedirectToAction("Events");
+            }
+        }
+
+        [HttpPost]
+        [ActionName("DeleteEvent")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteEventConfirmed(int id)
+        {
+            if (id <= 0)
+            {
+                return BadRequest();
+            }
+
+            try
+            {
+                // Request deletion through RaceDay API
+                using var response =
+                    await _apiService.DeleteEventAsync(id);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    TempData["SuccessMessage"] =
+                        "Event deleted successfully!";
+
+                    return RedirectToAction("Events");
+                }
+
+                if (response.StatusCode ==
+                    System.Net.HttpStatusCode.NotFound)
+                {
+                    return NotFound();
+                }
+
+                if (response.StatusCode ==
+                    System.Net.HttpStatusCode.Forbidden)
+                {
+                    return Forbid();
+                }
+
+                if (response.StatusCode ==
+                    System.Net.HttpStatusCode.Unauthorized)
+                {
+                    return Challenge();
+                }
+
+                _logger.LogWarning(
+                    "Event deletion failed: {StatusCode}",
+                    response.StatusCode);
+
+                TempData["ErrorMessage"] =
+                    "Unable to delete event. It may have related records.";
+
+                return RedirectToAction("Events");
+            }
+            catch (InvalidOperationException)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(
+                    ex, "Unable to delete event {EventId}", id);
+
+                TempData["ErrorMessage"] =
+                    "Unable to connect to RaceDay API.";
+
+                return RedirectToAction("Events");
+            }
+            catch (TaskCanceledException ex)
+            {
+                _logger.LogWarning(
+                    ex, "Deletion request timed out for event {EventId}", id);
+
+                TempData["ErrorMessage"] =
+                    "Request timed out. Check whether the event still exists.";
+
+                return RedirectToAction("Events");
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Categories(int eventId)
+        {
+            if (eventId <= 0)
+            {
+                return BadRequest();
+            }
+
+            try
+            {
+                // Retrieve the selected event
+                var raceEvent =
+                    await _apiService.GetEventByIdAsync(eventId);
+
+                if (raceEvent == null)
+                {
+                    return NotFound();
+                }
+
+                // Identify the logged-in Organiser
+                var userId = User.FindFirstValue(
+                    ClaimTypes.NameIdentifier);
+
+                if (!int.TryParse(userId, out int organiserId))
+                {
+                    return Challenge();
+                }
+
+                // Only allow the owner to manage categories
+                if (raceEvent.OrganiserId != organiserId)
+                {
+                    return Forbid();
+                }
+
+                // Retrieve categories from the API
+                var categories =
+                    await _apiService.GetEventCategoriesAsync(eventId);
+
+                ViewBag.EventId = eventId;
+                ViewBag.EventName = raceEvent.Name;
+
+                return View(categories);
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Unable to load categories for event {EventId}",
+                    eventId);
+
+                TempData["ErrorMessage"] =
+                    "Unable to load event categories.";
+
+                return RedirectToAction("Events");
+            }
+            catch (System.Text.Json.JsonException ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Invalid categories response for event {EventId}",
+                    eventId);
+
+                TempData["ErrorMessage"] =
+                    "Unable to process category information.";
+
+                return RedirectToAction("Events");
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> CreateCategory(int eventId)
+        {
+            if (eventId <= 0)
+            {
+                return BadRequest();
+            }
+
+            try
+            {
+                var raceEvent =
+                    await _apiService.GetEventByIdAsync(eventId);
+
+                if (raceEvent == null)
+                {
+                    return NotFound();
+                }
+
+                var userId = User.FindFirstValue(
+                    ClaimTypes.NameIdentifier);
+
+                if (!int.TryParse(userId, out int organiserId))
+                {
+                    return Challenge();
+                }
+
+                if (raceEvent.OrganiserId != organiserId)
+                {
+                    return Forbid();
+                }
+
+                ViewBag.EventName = raceEvent.Name;
+
+                return View(new CategoryViewModel
+                {
+                    EventId = eventId
+                });
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(
+                    ex, "Unable to load event {EventId}", eventId);
+
+                TempData["ErrorMessage"] =
+                    "Unable to load event information.";
+
+                return RedirectToAction("Events");
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateCategory(
+            int eventId,
+            CategoryViewModel model)
+        {
+            if (eventId <= 0)
+            {
+                return BadRequest();
+            }
+
+            model.EventId = eventId;
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            try
+            {
+                using var response =
+                    await _apiService.CreateCategoryAsync(
+                        eventId, model);
+
+                if (response.StatusCode ==
+                    System.Net.HttpStatusCode.Created)
+                {
+                    TempData["SuccessMessage"] =
+                        "Category created successfully!";
+
+                    return RedirectToAction(
+                        "Categories",
+                        new { eventId });
+                }
+
+                if (response.StatusCode ==
+                    System.Net.HttpStatusCode.Conflict)
+                {
+                    ModelState.AddModelError(
+                        nameof(model.Name),
+                        "A category with this name already exists.");
+
+                    return View(model);
+                }
+
+                if (response.StatusCode ==
+                    System.Net.HttpStatusCode.BadRequest)
+                {
+                    ModelState.AddModelError(
+                        "",
+                        "Invalid category details.");
+
+                    return View(model);
+                }
+
+                if (response.StatusCode ==
+                    System.Net.HttpStatusCode.Unauthorized)
+                {
+                    return Challenge();
+                }
+
+                if (response.StatusCode ==
+                    System.Net.HttpStatusCode.Forbidden)
+                {
+                    return Forbid();
+                }
+
+                if (response.StatusCode ==
+                    System.Net.HttpStatusCode.NotFound)
+                {
+                    return NotFound();
+                }
+
+                ModelState.AddModelError(
+                    "",
+                    "Unable to create category. Please try again.");
+
+                return View(model);
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(
+                    ex, "Category creation failed for event {EventId}",
+                    eventId);
+
+                ModelState.AddModelError(
+                    "",
+                    "Unable to connect to RaceDay API.");
+
+                return View(model);
+            }
+            catch (InvalidOperationException)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+            catch (TaskCanceledException ex)
+            {
+                _logger.LogWarning(
+                    ex, "Category creation timed out.");
+
+                ModelState.AddModelError(
+                    "",
+                    "Request timed out. Check the category list before retrying.");
+
+                return View(model);
+            }
+        }
+
 
     }
 }

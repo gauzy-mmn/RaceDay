@@ -1,0 +1,87 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+@model List<RaceDay.Models.CategoryViewModel>
+
+@{
+    ViewData["Title"] = "Manage Categories";
+    int eventId = ViewBag.EventId;
+}
+
+<div class="container py-5">
+
+    <h1 class="fw-bold">Manage Categories</h1>
+
+    <p class="text-muted mb-4">
+        Manage race categories for @ViewBag.EventName
+    </p>
+
+    <a asp-controller="Organiser"
+       asp-action="CreateCategory"
+       asp-route-eventId="@eventId"
+       class="btn btn-primary mb-4">
+        + Add New Category
+    </a>
+
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-info">
+            No categories have been added to this event yet.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+
+                <thead>
+                    <tr>
+                        <th>Category Name</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var category in Model)
+                    {
+                        <tr>
+                            <td>@category.Name</td>
+
+                            <td>
+                                @(string.IsNullOrWhiteSpace(
+                                    category.Description)
+                                    ? "No description"
+                                    : category.Description)
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+        </div>
+    }
+
+    <a asp-controller="Organiser"
+       asp-action="Events"
+       class="btn btn-outline-secondary mt-3">
+        Back to Events
+    </a>
+
+</div>
+

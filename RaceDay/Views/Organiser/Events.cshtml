@@ -56,6 +56,7 @@
                         <th>Location</th>
                         <th>Distance</th>
                         <th>Type</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
 
@@ -70,6 +71,36 @@
                             <td>@raceEvent.Location</td>
                             <td>@raceEvent.Distance km</td>
                             <td>@raceEvent.EventType</td>
+
+                            <td>
+                                <div class="d-flex gap-2">
+
+
+                                    <a asp-controller="Organiser"
+                                       asp-action="EditEvent"
+                                       asp-route-id="@raceEvent.EventId"
+                                       class="btn btn-sm btn-outline-primary">
+                                        Edit
+                                    </a>
+
+                                    <a asp-controller="Organiser"
+                                       asp-action="Categories"
+                                       asp-route-eventId="@raceEvent.EventId"
+                                       class="btn btn-sm btn-outline-secondary">
+                                        Categories
+                                    </a>
+
+
+                                    <a asp-controller="Organiser"
+                                       asp-action="DeleteEvent"
+                                       asp-route-id="@raceEvent.EventId"
+                                       class="btn btn-sm btn-outline-danger">
+                                        Delete
+                                    </a>
+
+                                </div>
+                            </td>
+
                         </tr>
                     }
                 </tbody>

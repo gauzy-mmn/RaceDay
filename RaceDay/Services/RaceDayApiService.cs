@@ -231,6 +231,113 @@ namespace RaceDay.Services
             return await client.SendAsync(request);
         }
 
+        public async Task<HttpResponseMessage> DeleteEventAsync(int id)
+        {
+            if (id <= 0)
+            {
+                throw new ArgumentException(
+                    "Invalid event ID.", nameof(id));
+            }
+
+            // Retrieve the current user's API session
+            var cookie = _httpContextAccessor
+                .HttpContext?
+                .Session.GetString("ApiAuthCookie");
+
+            if (string.IsNullOrWhiteSpace(cookie))
+            {
+                throw new InvalidOperationException(
+                    "You must be logged in to delete an event.");
+            }
+
+            // Create the HTTP client
+            var client = _httpClientFactory
+                .CreateClient("RaceDayApi");
+
+            // Prepare authenticated DELETE request
+            using var request = new HttpRequestMessage(
+                HttpMethod.Delete,
+                $"api/events/{id}");
+
+            request.Headers.TryAddWithoutValidation(
+                "Cookie", cookie);
+
+            // Send request to RaceDay API
+            return await client.SendAsync(request);
+        }
+
+        public async Task<HttpResponseMessage> CreateCategoryAsync(
+            int eventId,
+            CategoryViewModel model)
+        {
+            if (eventId <= 0)
+            {
+                throw new ArgumentException(
+                    "Invalid event ID.", nameof(eventId));
+            }
+
+            // Retrieve authenticated user's API cookie
+            var cookie = _httpContextAccessor
+                .HttpContext?
+                .Session.GetString("ApiAuthCookie");
+
+            if (string.IsNullOrWhiteSpace(cookie))
+            {
+                throw new InvalidOperationException(
+                    "You must be logged in to create a category.");
+            }
+
+            // Create API client
+            var client = _httpClientFactory
+                .CreateClient("RaceDayApi");
+
+            // Prepare category information
+            var categoryData = new
+            {
+                name = model.Name,
+                description = model.Description
+            };
+
+            // Create authenticated API request
+            using var request = new HttpRequestMessage(
+                HttpMethod.Post,
+                $"api/events/{eventId}/categories");
+
+            request.Headers.TryAddWithoutValidation(
+                "Cookie", cookie);
+
+            request.Content = JsonContent.Create(categoryData);
+
+            // Send request to RaceDay API
+            return await client.SendAsync(request);
+        }
+
+        public async Task<List<CategoryViewModel>>
+            GetEventCategoriesAsync(int eventId)
+        {
+            if (eventId <= 0)
+            {
+                throw new ArgumentException(
+                    "Invalid event ID.", nameof(eventId));
+            }
+
+            var client = _httpClientFactory
+                .CreateClient("RaceDayApi");
+
+            // Retrieve categories for the selected event
+            using var response = await client.GetAsync(
+                $"api/events/{eventId}/categories");
+
+            // Check whether the request succeeded
+            response.EnsureSuccessStatusCode();
+
+            // Convert JSON into category objects
+            var categories = await response.Content
+                .ReadFromJsonAsync<List<CategoryViewModel>>();
+
+            return categories ?? new List<CategoryViewModel>();
+        }
+
 
 
     }
