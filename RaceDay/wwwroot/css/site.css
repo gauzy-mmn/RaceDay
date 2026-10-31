@@ -1,22 +1,632 @@
+
+/* ==========================================
+   RACEDAY GLOBAL STYLES
+   ========================================== */
+
 html {
-  font-size: 14px;
+    font-size: 14px;
+    position: relative;
+    min-height: 100%;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+    html {
+        font-size: 16px;
+    }
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 0;
+}
+
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+
+/* ==========================================
+   RACEDAY DESIGN SYSTEM
+   Phase 37: Premium Editorial Interface
+   ========================================== */
+
+:root {
+    /* Core Colours */
+    --rd-background: #F8F9FB;
+    --rd-surface: #FFFFFF;
+    --rd-ink: #111827;
+    --rd-muted: #64748B;
+    --rd-blue: #176BDA;
+    --rd-green: #16845A;
+    --rd-gold: #D5A73F;
+    /* Borders and Shadows */
+    --rd-border: rgba(17, 24, 39, 0.09);
+    --rd-shadow: 0 16px 50px rgba(17, 24, 39, 0.06);
+    /* Rounded Geometry */
+    --rd-radius-sm: 12px;
+    --rd-radius-md: 20px;
+    --rd-radius-lg: 28px;
+    /* Animation */
+    --rd-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+
+/* ==========================================
+   TYPOGRAPHY
+   ========================================== */
+
+.rd-display {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.055em;
+    line-height: 1.04;
+    color: var(--rd-ink);
+}
+
+.rd-heading {
+    font-weight: 650;
+    letter-spacing: -0.035em;
+    color: var(--rd-ink);
+}
+
+.rd-description {
+    color: var(--rd-muted);
+    line-height: 1.75;
+}
+
+
+/* ==========================================
+   LAYOUT
+   ========================================== */
+
+.rd-section {
+    padding: 110px 0;
+}
+
+.rd-container {
+    width: min(1180px, calc(100% - 48px));
+    margin-inline: auto;
+}
+
+
+/* ==========================================
+   PREMIUM CARDS
+   ========================================== */
+
+.rd-card {
+    background: var(--rd-surface);
+    border: 1px solid var(--rd-border);
+    border-radius: var(--rd-radius-lg);
+    box-shadow: var(--rd-shadow);
+    overflow: hidden;
+    transition: transform 0.5s var(--rd-ease), box-shadow 0.5s var(--rd-ease);
+}
+
+    .rd-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 24px 60px rgba(17, 24, 39, 0.09);
+    }
+
+
+/* ==========================================
+   GLASS EFFECTS
+   ========================================== */
+
+.rd-glass {
+    background: rgba(255, 255, 255, 0.82);
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    box-shadow: 0 10px 35px rgba(17, 24, 39, 0.05);
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
+}
+
+
+/* ==========================================
+   PRIMARY BUTTON
+   ========================================== */
+
+.rd-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 26px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    background: var(--rd-ink);
+    color: #FFFFFF;
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform 0.35s var(--rd-ease), background 0.35s ease;
+}
+
+    .rd-button:hover {
+        transform: translateY(-2px);
+        background: var(--rd-blue);
+        color: #FFFFFF;
+    }
+
+    .rd-button:focus-visible {
+        outline: 3px solid var(--rd-blue);
+        outline-offset: 3px;
+    }
+
+
+/* ==========================================
+   GLOBAL ENTRANCE ANIMATION
+   ========================================== */
+
+@keyframes rd-reveal {
+    from {
+        opacity: 0;
+        transform: translateY(24px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.rd-reveal {
+    animation: rd-reveal 0.9s var(--rd-ease) both;
+}
+
+
+/* ==========================================
+   RESPONSIVE GLOBAL LAYOUT
+   ========================================== */
+
+@media (max-width: 768px) {
+    .rd-section {
+        padding: 65px 0;
+    }
+
+    .rd-container {
+        width: calc(100% - 32px);
+    }
+
+    .rd-display {
+        letter-spacing: -0.04em;
+    }
+}
+
+
+/* ==========================================
+   RACEDAY AUTHENTICATION LAYOUT
+   ========================================== */
+
+.rd-auth {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    min-height: min(780px, calc(100svh - 110px));
+    background: #FFFFFF;
+    overflow: hidden;
+}
+
+
+/* ==========================================
+   AUTH: LEFT FORM PANEL
+   ========================================== */
+
+.rd-auth-panel {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 70px 36px;
+    background: #FFFFFF;
+    z-index: 1;
+}
+
+.rd-auth-content {
+    width: 100%;
+    max-width: 420px;
+}
+
+
+/* ==========================================
+   AUTH TYPOGRAPHY
+   ========================================== */
+
+.rd-auth-eyebrow {
+    display: block;
+    margin-bottom: 22px;
+    color: var(--rd-blue);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.rd-auth-title {
+    margin-bottom: 16px;
+    color: var(--rd-ink);
+    font-size: clamp(36px, 4vw, 54px);
+    font-weight: 750;
+    line-height: 1.08;
+    letter-spacing: -0.055em;
+}
+
+.rd-auth-subtitle {
+    margin-bottom: 36px;
+    color: var(--rd-muted);
+    font-size: 15px;
+    line-height: 1.75;
+}
+
+
+/* ==========================================
+   AUTH FORM LABELS
+   ========================================== */
+
+.rd-auth .form-label {
+    margin-bottom: 9px;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 650;
+}
+
+
+/* ==========================================
+   AUTH FORM FIELDS
+   ========================================== */
+
+.rd-auth .form-control,
+.rd-auth .form-select {
+    min-height: 52px;
+    padding: 13px 16px;
+    border: 1px solid #E2E8F0;
+    border-radius: 13px;
+    background: #F8FAFC;
+    color: var(--rd-ink);
+    transition: background-color 300ms ease, border-color 300ms ease, box-shadow 350ms ease, transform 350ms var(--rd-ease);
+}
+
+    .rd-auth .form-control:hover,
+    .rd-auth .form-select:hover {
+        background: #FFFFFF;
+        border-color: #CBD5E1;
+    }
+
+    .rd-auth .form-control:focus,
+    .rd-auth .form-select:focus {
+        background: #FFFFFF;
+        border-color: var(--rd-blue);
+        transform: translateY(-1px);
+        box-shadow: 0 0 0 4px rgba(23, 107, 218, 0.09);
+    }
+
+
+/* ==========================================
+   AUTH SUBMIT BUTTON
+   ========================================== */
+
+.rd-auth-submit {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 52px;
+    padding: 14px 24px;
+    overflow: hidden;
+    border: 0;
+    border-radius: 999px;
+    background: var(--rd-ink);
+    color: #FFFFFF;
+    font-size: 14px;
+    font-weight: 650;
+    cursor: pointer;
+    transition: background-color 350ms ease, transform 400ms var(--rd-ease), box-shadow 400ms ease;
+}
+
+    .rd-auth-submit:hover {
+        background: var(--rd-blue);
+        color: #FFFFFF;
+        transform: translateY(-3px);
+        box-shadow: 0 12px 26px rgba(23, 107, 218, 0.19);
+    }
+
+    .rd-auth-submit:active {
+        transform: translateY(0) scale(0.985);
+        box-shadow: none;
+    }
+
+    .rd-auth-submit:focus-visible {
+        outline: 3px solid var(--rd-blue);
+        outline-offset: 3px;
+    }
+
+    .rd-auth-submit span {
+        display: inline-block;
+        transition: transform 350ms var(--rd-ease);
+    }
+
+    .rd-auth-submit:hover span {
+        transform: translate(3px, -3px);
+    }
+
+
+/* ==========================================
+   AUTH REGISTRATION LINK
+   ========================================== */
+
+.rd-auth-content a {
+    transition: color 250ms ease, opacity 250ms ease;
+}
+
+    .rd-auth-content a:hover {
+        color: #0F4EA8 !important;
+    }
+
+
+/* ==========================================
+   AUTH: RIGHT CINEMATIC PANEL
+   ========================================== */
+
+.rd-auth-visual {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    min-width: 0;
+    overflow: hidden;
+    /*
+       Extra left padding keeps the text
+       outside the white fade area.
+    */
+
+    padding: 45px 45px 45px clamp(120px, 10vw, 180px);
+    background-color: #0C1424;
+    background-image: linear-gradient( 180deg, rgba(8, 15, 30, 0.05) 0%, rgba(8, 15, 30, 0.18) 38%, rgba(8, 15, 30, 0.85) 100% ), url('/images/auth-login-hero.webp');
+    background-size: cover;
+    background-position: 60% center;
+    color: #FFFFFF;
+    isolation: isolate;
+}
+
+
+    /* ==========================================
+   AUTH: SMOOTH CENTRE GRADIENT
+   WHITE LEFT -> DARK IMAGE RIGHT
+   ========================================== */
+
+    .rd-auth-visual::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        pointer-events: none;
+        /*
+       Starts completely white at the
+       boundary between the form and image.
+
+       Gradually becomes transparent so
+       the photograph emerges naturally.
+    */
+
+        background: linear-gradient( to right, #FFFFFF 0%, rgba(255, 255, 255, 0.98) 4%, rgba(255, 255, 255, 0.88) 9%, rgba(255, 255, 255, 0.65) 15%, rgba(255, 255, 255, 0.30) 23%, rgba(255, 255, 255, 0.08) 30%, rgba(255, 255, 255, 0) 38% );
+    }
+
+
+/* ==========================================
+   CINEMATIC IMAGE CONTENT
+   ========================================== */
+
+.rd-auth-visual-content {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 440px;
+}
+
+.rd-auth-visual-title {
+    margin-bottom: 18px;
+    color: #FFFFFF;
+    font-size: clamp(38px, 4.5vw, 65px);
+    font-weight: 750;
+    line-height: 1.05;
+    letter-spacing: -0.06em;
+    text-wrap: balance;
+}
+
+.rd-auth-visual-caption {
+    margin-top: 18px;
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+
+/* ==========================================
+   AUTH: ANIMATION KEYFRAMES
+   ========================================== */
+
+@keyframes rd-auth-slide-in {
+    from {
+        opacity: 0;
+        transform: translateY(22px);
+        filter: blur(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+    }
+}
+
+@keyframes rd-auth-image-reveal {
+    from {
+        opacity: 0;
+        transform: scale(1.025);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+
+/* ==========================================
+   AUTH: FORM ENTRANCE
+   ========================================== */
+
+.rd-auth-panel .rd-auth-content.rd-reveal {
+    animation: rd-auth-slide-in 850ms var(--rd-ease) both;
+}
+
+
+/* ==========================================
+   AUTH: STAGGERED CONTENT REVEAL
+   ========================================== */
+
+.rd-auth-content > .rd-auth-eyebrow,
+.rd-auth-content > .rd-auth-title,
+.rd-auth-content > .rd-auth-subtitle,
+.rd-auth-content > form,
+.rd-auth-content > .text-center,
+.rd-auth-content > .border-top {
+    animation: rd-auth-slide-in 750ms var(--rd-ease) both;
+}
+
+.rd-auth-content > .rd-auth-eyebrow {
+    animation-delay: 80ms;
+}
+
+.rd-auth-content > .rd-auth-title {
+    animation-delay: 140ms;
+}
+
+.rd-auth-content > .rd-auth-subtitle {
+    animation-delay: 210ms;
+}
+
+.rd-auth-content > form {
+    animation-delay: 280ms;
+}
+
+.rd-auth-content > .text-center {
+    animation-delay: 350ms;
+}
+
+.rd-auth-content > .border-top {
+    animation-delay: 420ms;
+}
+
+
+/* ==========================================
+   AUTH: CINEMATIC IMAGE ENTRANCE
+   ========================================== */
+
+.rd-auth-visual {
+    animation: rd-auth-image-reveal 1100ms var(--rd-ease) both;
+}
+
+.rd-auth-visual-content.rd-reveal {
+    animation: rd-auth-slide-in 1000ms var(--rd-ease) 350ms both;
+}
+
+
+/* ==========================================
+   AUTH: RESPONSIVE LAYOUT
+   ========================================== */
+
+@media (min-width: 901px) and (max-width: 1200px) {
+    .rd-auth-visual {
+        padding-left: 105px;
+        padding-right: 28px;
+    }
+
+    .rd-auth-visual-title {
+        font-size: clamp(34px, 3.5vw, 50px);
+    }
+
+    .rd-auth-visual::before {
+        background: linear-gradient( to right, #FFFFFF 0%, rgba(255, 255, 255, 0.85) 8%, rgba(255, 255, 255, 0.40) 18%, transparent 32% );
+    }
+}
+
+@media (max-width: 900px) {
+    .rd-auth {
+        grid-template-columns: 1fr;
+        min-height: auto;
+    }
+
+    .rd-auth-panel {
+        padding: 65px 24px;
+    }
+
+    .rd-auth-visual {
+        display: none;
+    }
+
+    .rd-auth-content {
+        max-width: 460px;
+    }
+}
+
+@media (max-width: 480px) {
+    .rd-auth-panel {
+        padding: 55px 22px;
+    }
+
+    .rd-auth-title {
+        font-size: 39px;
+    }
+
+    .rd-auth-subtitle {
+        font-size: 14px;
+    }
+
+    .rd-auth .form-control {
+        min-height: 50px;
+    }
+
+    .rd-auth-submit {
+        min-height: 50px;
+    }
+}
+
+
+/* ==========================================
+   ACCESSIBILITY: REDUCED MOTION
+   ========================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    .rd-reveal,
+    .rd-auth-panel .rd-auth-content.rd-reveal,
+    .rd-auth-visual,
+    .rd-auth-visual-content.rd-reveal,
+    .rd-auth-content > .rd-auth-eyebrow,
+    .rd-auth-content > .rd-auth-title,
+    .rd-auth-content > .rd-auth-subtitle,
+    .rd-auth-content > form,
+    .rd-auth-content > .text-center,
+    .rd-auth-content > .border-top {
+        animation: none !important;
+    }
+
+    .rd-card,
+    .rd-button,
+    .rd-auth .form-control,
+    .rd-auth .form-select,
+    .rd-auth-submit,
+    .rd-auth-submit span,
+    .rd-auth-content a {
+        transition: none !important;
+    }
+
+        .rd-card:hover,
+        .rd-button:hover,
+        .rd-auth .form-control:focus,
+        .rd-auth .form-select:focus,
+        .rd-auth-submit:hover,
+        .rd-auth-submit:active {
+            transform: none !important;
+        }
 }

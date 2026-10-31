@@ -4,95 +4,236 @@
     ViewData["Title"] = "Login";
 }
 
-@if (TempData["SuccessMessage"] is string message)
-{
-    <div class="alert alert-success alert-dismissible fade show"
-         role="alert">
+<div class="rd-auth">
 
-        @message
+    <!-- LEFT: LOGIN FORM -->
+    <section class="rd-auth-panel">
 
-        <button type="button"
-                class="btn-close"
-                data-bs-dismiss="alert"
-                aria-label="Close">
-        </button>
-    </div>
-}
+        <div class="rd-auth-content rd-reveal">
 
+            <!-- Page Label -->
+            <span class="rd-auth-eyebrow">
+                RACEDAY / MEMBER ACCESS
+            </span>
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6 col-lg-5">
+            <!-- Heading -->
+            <h1 class="rd-auth-title">
+                Welcome
+                back<span style="color: #176BDA;">.</span>
+            </h1>
 
-            <div class="card shadow border-0 rounded-4">
-                <div class="card-body p-4">
+            <p class="rd-auth-subtitle">
+                Your next race starts here.
+                Sign in and pick up right
+                where you left off.
+            </p>
 
-                    <h2 class="text-center fw-bold mb-2">
-                        RaceDay
-                    </h2>
+            <!-- Success Notification -->
+            @if (TempData["SuccessMessage"] is string message)
+            {
+                <div class="alert alert-success
+                    alert-dismissible fade show
+                    rounded-3 mb-4"
+                     role="status">
 
-                    <p class="text-center text-muted mb-4">
-                        Welcome back! Sign in to continue.
-                    </p>
+                    @message
 
-                    <form asp-controller="Account"
-                          asp-action="Login"
-                          method="post">
-
-                        @Html.AntiForgeryToken()
-
-                        <div asp-validation-summary="ModelOnly"
-                             class="text-danger mb-3"></div>
-
-                        <div class="mb-3">
-                            <label asp-for="Email"
-                                   class="form-label">
-                                Email Address
-                            </label>
-
-                            <input asp-for="Email"
-                                   class="form-control"
-                                   placeholder="Enter your email" />
-
-                            <span asp-validation-for="Email"
-                                  class="text-danger"></span>
-                        </div>
-
-                        <div class="mb-4">
-                            <label asp-for="Password"
-                                   class="form-label">
-                                Password
-                            </label>
-
-                            <input asp-for="Password"
-                                   type="password"
-                                   class="form-control"
-                                   placeholder="Enter your password" />
-
-                            <span asp-validation-for="Password"
-                                  class="text-danger"></span>
-                        </div>
-
-                        <button type="submit"
-                                class="btn btn-primary w-100 py-2">
-                            Login
-                        </button>
-
-                    </form>
-
-                    <p class="text-center mt-4 mb-0">
-                        Don't have an account?
-                        <a asp-controller="Account"
-                           asp-action="Register">
-                            Register here
-                        </a>
-                    </p>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert"
+                            aria-label="Close">
+                    </button>
 
                 </div>
+            }
+
+            <!-- LOGIN FORM -->
+            <form asp-controller="Account"
+                  asp-action="Login"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <!-- Validation Summary -->
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3"
+                     role="alert">
+                </div>
+
+                <!-- Email Address -->
+                <div class="mb-4">
+
+                    <label asp-for="Email"
+                           class="form-label">
+                        Email address
+                    </label>
+
+                    <input asp-for="Email"
+                           type="email"
+                           class="form-control"
+                           placeholder="you@example.com"
+                           autocomplete="email"
+                           required />
+
+                    <span asp-validation-for="Email"
+                          class="text-danger small">
+                    </span>
+
+                </div>
+
+                <!-- Password -->
+                <div class="mb-4">
+
+                    <label asp-for="Password"
+                           class="form-label">
+                        Password
+                    </label>
+
+                    <input asp-for="Password"
+                           type="password"
+                           class="form-control"
+                           placeholder="Enter your password"
+                           autocomplete="current-password"
+                           required />
+
+                    <span asp-validation-for="Password"
+                          class="text-danger small">
+                    </span>
+
+                </div>
+
+                <!-- Submit -->
+                <button type="submit"
+                        class="rd-auth-submit">
+
+                    Sign In
+
+                    <span aria-hidden="true"
+                          class="ms-2">
+                        ↗
+                    </span>
+
+                </button>
+
+            </form>
+
+            <!-- Registration Link -->
+            <div class="text-center mt-4">
+
+                <p class="mb-0"
+                   style="font-size: 13px;
+                    color: #64748B;">
+
+                    New to RaceDay?
+
+                    <a asp-controller="Account"
+                       asp-action="Register"
+                       style="color: #176BDA;
+                        font-weight: 650;
+                        text-decoration: none;">
+
+                        Create an account
+
+                    </a>
+
+                </p>
+
+            </div>
+
+            <!-- Bottom Detail -->
+            <div class="mt-5 pt-4 border-top">
+
+                <div class="d-flex
+                    align-items-center
+                    justify-content-between
+                    gap-3">
+
+                    <span style="font-size: 10px;
+                        letter-spacing: .12em;
+                        font-weight: 650;
+                        color: #94A3B8;">
+
+                        EVERY RACE STARTS SOMEWHERE
+
+                    </span>
+
+                    <span style="font-size: 12px;
+                        font-weight: 700;
+                        color: #176BDA;">
+
+                        RD.
+
+                    </span>
+
+                </div>
+
             </div>
 
         </div>
-    </div>
+
+    </section>
+
+    <!-- RIGHT: CINEMATIC RACE VISUAL -->
+    <aside class="rd-auth-visual"
+           aria-label="RaceDay running photography">
+
+        <div class="rd-auth-visual-content rd-reveal">
+
+            <!-- Editorial Label -->
+            <span class="rd-auth-eyebrow"
+                  style="color: rgba(255,255,255,.8);">
+
+                THE JOURNEY CONTINUES
+
+            </span>
+
+            <!-- Main Visual Heading -->
+            <h2 class="rd-auth-visual-title">
+
+                The finish
+                line isn't
+                the end.
+
+            </h2>
+
+            <!-- Description -->
+            <p class="rd-auth-visual-caption">
+
+                Every step moves you forward.
+                Every challenge shapes your journey.
+                Your next chapter begins here.
+
+            </p>
+
+            <!-- Decorative Line -->
+            <div class="mt-4"
+                 style="width: 64px;
+                height: 3px;
+                background: #D5A73F;
+                border-radius: 999px;">
+            </div>
+
+            <!-- Small Footer Label -->
+            <div class="mt-5"
+                 style="display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 20px;
+                font-size: 10px;
+                font-weight: 650;
+                letter-spacing: .14em;
+                color: rgba(255,255,255,.75);">
+
+                <span>RACEDAY / EST. 2026</span>
+
+                <span>RUN • WALK • CYCLE</span>
+
+            </div>
+
+        </div>
+
+    </aside>
+
 </div>
 
 @section Scripts {
