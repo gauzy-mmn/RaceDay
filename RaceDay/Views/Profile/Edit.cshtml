@@ -1,0 +1,215 @@
+﻿@model RaceDay.Models.UpdateProfileViewModel
+
+@{
+    ViewData["Title"] = "Edit Profile";
+}
+
+<div class="container py-5">
+
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+
+            <div class="mb-4">
+                <h1 class="fw-bold">Edit Profile</h1>
+
+                <p class="text-muted">
+                    Manage your personal information
+                    on RaceDay.
+                </p>
+            </div>
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success" role="status">
+                    @TempData["SuccessMessage"]
+                </div>
+            }
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger" role="alert">
+                    @TempData["ErrorMessage"]
+                </div>
+            }
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+
+                    <form asp-controller="Profile"
+                          asp-action="Edit"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <div asp-validation-summary="ModelOnly"
+                             class="text-danger mb-3">
+                        </div>
+
+                        <div class="row g-3">
+
+                            <div class="col-md-6">
+                                <label asp-for="FirstName"
+                                       class="form-label">
+                                </label>
+
+                                <input asp-for="FirstName"
+                                       class="form-control"
+                                       autocomplete="given-name" />
+
+                                <span asp-validation-for="FirstName"
+                                      class="text-danger">
+                                </span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="LastName"
+                                       class="form-label">
+                                </label>
+
+                                <input asp-for="LastName"
+                                       class="form-control"
+                                       autocomplete="family-name" />
+
+                                <span asp-validation-for="LastName"
+                                      class="text-danger">
+                                </span>
+                            </div>
+
+                            <div class="col-12">
+                                <label asp-for="PhoneNumber"
+                                       class="form-label">
+                                </label>
+
+                                <input asp-for="PhoneNumber"
+                                       type="tel"
+                                       class="form-control"
+                                       autocomplete="tel"
+                                       placeholder="Optional" />
+
+                                <span asp-validation-for="PhoneNumber"
+                                      class="text-danger">
+                                </span>
+                            </div>
+
+                        </div>
+
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit"
+                                    class="btn btn-primary">
+                                Save Changes
+                            </button>
+
+                            <a href="javascript:history.back()"
+                               class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+                        </div>
+
+                    </form>
+
+                    
+                    <!-- Profile Picture Upload Section -->
+                    <hr class="my-4" />
+
+                    <div class="mt-4">
+
+                        <h4 class="fw-bold mb-2">
+                            Profile Picture
+                        </h4>
+
+                        <p class="text-muted">
+                            Upload a profile picture for your RaceDay account.
+                        </p>
+
+                        <!-- Current Profile Picture -->
+                        <div class="d-flex align-items-center gap-3 mb-4">
+
+                            <div class="rounded-circle overflow-hidden border"
+                                 style="width:100px; height:100px; position:relative;">
+
+                                <!-- Uploaded Profile Picture -->
+                                <img src="@Url.Action("Picture", "Profile")"
+                                     alt="Your profile picture"
+                                     class="w-100 h-100"
+                                     style="object-fit:cover;"
+                                     onerror="this.classList.add('d-none');
+                                document.getElementById('profilePictureFallback')
+                                .classList.remove('d-none');" />
+
+                                <!-- Fallback Avatar -->
+                                <div id="profilePictureFallback"
+                                     class="d-none w-100 h-100
+                                    bg-light align-items-center
+                                    justify-content-center text-secondary"
+                                     style="position:absolute; inset:0;">
+
+                                    <span class="fs-1 d-flex align-items-center justify-content-center h-100">
+                                        👤
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                            <div>
+                                <h6 class="fw-semibold mb-1">
+                                    Current Profile Picture
+                                </h6>
+
+                                <p class="text-muted small mb-0">
+                                    Upload a new image to change your picture.
+                                </p>
+                            </div>
+
+                        </div>
+
+
+                        <form asp-controller="Profile"
+                              asp-action="UploadProfilePicture"
+                              method="post"
+                              enctype="multipart/form-data">
+
+                            @Html.AntiForgeryToken()
+
+                            <div class="mb-3">
+
+                                <label for="profilePictureFile"
+                                       class="form-label fw-semibold">
+                                    Choose Profile Picture
+                                </label>
+
+                                <input type="file"
+                                       id="profilePictureFile"
+                                       name="file"
+                                       class="form-control"
+                                       accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                                       required />
+
+                                <div class="form-text">
+                                    Supported formats: JPG, PNG and WebP.
+                                    Maximum file size: 5 MB.
+                                </div>
+
+                            </div>
+
+                            <button type="submit"
+                                    class="btn btn-outline-primary">
+                                Upload Picture
+                            </button>
+
+                        </form>
+
+                    </div>
+
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

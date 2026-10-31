@@ -38,8 +38,13 @@ public class EventResponse
         Location = e.Location,
         Distance = e.Distance,
         EventType = e.EventType,
-        CreatedAt = e.CreatedAt
+        CreatedAt = e.CreatedAt,
+        ResultsPublished = e.ResultsPublished
+
     };
+
+    public bool ResultsPublished { get; set; }
+
 }
 
 public class CategoryRequest

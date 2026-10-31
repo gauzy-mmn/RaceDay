@@ -1,0 +1,156 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+@model RaceDay.Models.CaptureResultViewModel
+
+@{
+    ViewData["Title"] = "Capture Race Result";
+    string eventName = ViewBag.EventName ?? "Race Event";
+}
+
+<div class="container py-5">
+
+    <div class="mb-4">
+        <h1 class="fw-bold">Capture Race Result</h1>
+
+        <p class="text-muted">
+            Record a participant's finishing time
+            and position for @eventName.
+        </p>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+
+            @if (!Model.AvailableEnrolments.Any())
+            {
+                <div class="alert alert-info">
+                    No eligible participants are available.
+                    All enrolled participants may already
+                    have results, or nobody has enrolled yet.
+                </div>
+            }
+            else
+            {
+                <form asp-controller="Organiser"
+                      asp-action="CaptureResult"
+                      asp-route-eventId="@Model.EventId"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <input asp-for="EventId" type="hidden" />
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="text-danger mb-3">
+                    </div>
+
+                    <!-- Participant -->
+                    <div class="mb-3">
+                        <label asp-for="EnrolmentId"
+                               class="form-label fw-semibold">
+                        </label>
+
+                        <select asp-for="EnrolmentId"
+                                class="form-select">
+
+                            <option value="0">
+                                Select a participant
+                            </option>
+
+                            @foreach (var enrolment
+                                in Model.AvailableEnrolments)
+                            {
+                                <option value="@enrolment.EnrolmentId">
+                                    @enrolment.ParticipantName
+                                    (@enrolment.CategoryName)
+                                </option>
+                            }
+
+                        </select>
+
+                        <span asp-validation-for="EnrolmentId"
+                              class="text-danger">
+                        </span>
+                    </div>
+
+                    <!-- Finish Time -->
+                    <div class="mb-3">
+                        <label asp-for="FinishTime"
+                               class="form-label fw-semibold">
+                        </label>
+
+                        <input asp-for="FinishTime"
+                               type="text"
+                               class="form-control"
+                               placeholder="00:45:32"
+                               autocomplete="off" />
+
+                        <div class="form-text">
+                            Enter hours, minutes and seconds
+                            using HH:mm:ss format.
+                        </div>
+
+                        <span asp-validation-for="FinishTime"
+                              class="text-danger">
+                        </span>
+                    </div>
+
+                    <!-- Finishing Position -->
+                    <div class="mb-4">
+                        <label asp-for="FinishPosition"
+                               class="form-label fw-semibold">
+                        </label>
+
+                        <input asp-for="FinishPosition"
+                               type="number"
+                               min="1"
+                               step="1"
+                               class="form-control"
+                               placeholder="1" />
+
+                        <span asp-validation-for="FinishPosition"
+                              class="text-danger">
+                        </span>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="d-flex gap-2">
+
+                        <button type="submit"
+                                class="btn btn-primary">
+                            Save Race Result
+                        </button>
+
+                        <a asp-controller="Organiser"
+                           asp-action="Results"
+                           asp-route-eventId="@Model.EventId"
+                           class="btn btn-outline-secondary">
+                            Cancel
+                        </a>
+
+                    </div>
+
+                </form>
+            }
+
+            @if (!Model.AvailableEnrolments.Any())
+            {
+                <a asp-controller="Organiser"
+                   asp-action="Results"
+                   asp-route-eventId="@Model.EventId"
+                   class="btn btn-outline-secondary">
+                    Back to Results
+                </a>
+            }
+
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+

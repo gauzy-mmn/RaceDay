@@ -32,6 +32,34 @@
         </a>
     </div>
 
+    <!-- RaceDay Event Banner -->
+    <div class="mb-4">
+        <div class="rounded-4 overflow-hidden position-relative"
+             style="height: 320px; background-color: #eef0f3;">
+
+            
+            <img src="@Url.Action("Banner", "Events", new { id = Model.Event.EventId })"
+                 alt="Event banner"
+                 class="w-100 h-100"
+                 style="object-fit: cover;"
+                 onerror="this.style.display='none';
+            this.nextElementSibling.style.display='flex';" />
+
+            <!-- Fallback when no banner exists -->
+            <div class="w-100 h-100 align-items-center
+                justify-content-center flex-column"
+                 style="display: none; background-color: #eef0f3;">
+
+                <h2 class="fw-bold mb-2">RaceDay</h2>
+
+                <p class="text-muted mb-0">
+                    Every race has a starting line.
+                </p>
+            </div>
+        </div>
+    </div>
+
+
     <!-- Event Information -->
     <div class="mb-4">
 

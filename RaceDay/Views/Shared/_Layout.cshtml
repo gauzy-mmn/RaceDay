@@ -56,6 +56,26 @@
                                         My Enrolments
                                     </a>
                                 </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark"
+                                       asp-controller="Participant"
+                                       asp-action="MyResults">
+                                        My Results
+                                    </a>
+                                </li>
+
+                            }
+
+                            @if (User.Identity?.IsAuthenticated == true)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark"
+                                       asp-controller="Profile"
+                                       asp-action="Edit">
+                                        My Profile
+                                    </a>
+                                </li>
                             }
 
 

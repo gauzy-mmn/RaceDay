@@ -105,6 +105,9 @@ namespace RaceDay.Api.Migrations
                     b.Property<decimal>("Distance")
                         .HasColumnType("decimal(6,2)");
 
+                    b.Property<string>("EventBannerBlobName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("EventDate")
                         .HasColumnType("datetime");
 
@@ -122,6 +125,9 @@ namespace RaceDay.Api.Migrations
 
                     b.Property<int>("OrganiserId")
                         .HasColumnType("int");
+
+                    b.Property<bool>("ResultsPublished")
+                        .HasColumnType("bit");
 
                     b.HasKey("EventId")
                         .HasName("PK_Events");
@@ -231,6 +237,9 @@ namespace RaceDay.Api.Migrations
 
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("varchar(20)");
+
+                    b.Property<string>("ProfilePictureBlobName")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("RegisteredAt")
                         .ValueGeneratedOnAdd()

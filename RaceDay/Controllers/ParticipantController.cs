@@ -352,6 +352,73 @@ namespace RaceDay.Controllers
             return View(new List<EnrolmentViewModel>());
         }
 
+        [HttpGet]
+        public async Task<IActionResult> MyResults()
+        {
+            try
+            {
+                // Retrieve the logged-in Participant's results
+                var results = await _apiService.GetMyResultsAsync();
+
+                // Sort results by capture date, newest first
+                var sortedResults = results
+                    .OrderByDescending(r => r.CapturedAt)
+                    .ToList();
+
+                return View(sortedResults);
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Unable to retrieve Participant race results.");
+
+                if (ex.StatusCode ==
+                    System.Net.HttpStatusCode.Unauthorized)
+                {
+                    return Challenge();
+                }
+
+                if (ex.StatusCode ==
+                    System.Net.HttpStatusCode.Forbidden)
+                {
+                    return Forbid();
+                }
+
+                ViewBag.ErrorMessage =
+                    "Unable to load your race results. Please try again.";
+            }
+            catch (System.Text.Json.JsonException ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Invalid race results response from API.");
+
+                ViewBag.ErrorMessage =
+                    "Unable to process your race results.";
+            }
+            catch (TaskCanceledException ex)
+            {
+                _logger.LogWarning(
+                    ex,
+                    "Participant results request timed out.");
+
+                ViewBag.ErrorMessage =
+                    "The request timed out. Please try again.";
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning(
+                    ex,
+                    "Participant API session unavailable.");
+
+                return Challenge();
+            }
+
+            // Return an empty model alongside the error message
+            return View(new List<RaceResultViewModel>());
+        }
+
 
     }
 

@@ -92,11 +92,40 @@
     {
         <div class="row g-4">
 
+            
             @foreach (var raceEvent in Model)
             {
                 <div class="col-md-6 col-lg-4">
-                    <div class="card h-100 shadow-sm border-0">
+                    <div class="card h-100 shadow-sm border-0 overflow-hidden">
+
+                        <!-- RaceDay Event Banner -->
+                        <div class="position-relative overflow-hidden"
+                             style="height: 200px; background-color: #eef0f3;">
+
+                            <!-- Uploaded Banner -->
+                            <img src="@Url.Action("Banner", "Events", new { id = raceEvent.EventId })"
+                                 alt="Banner for @raceEvent.Name"
+                                 class="w-100 h-100"
+                                 style="object-fit: cover;"
+                                 loading="lazy"
+                                 onerror="this.style.display='none';
+                            this.nextElementSibling.style.display='flex';" />
+
+                            <!-- Fallback Banner -->
+                            <div class="w-100 h-100 align-items-center
+                                justify-content-center flex-column"
+                                 style="display: none; background-color: #eef0f3;">
+
+                                <h4 class="fw-bold mb-1">RaceDay</h4>
+
+                                <span class="text-muted small">
+                                    Every race has a starting line.
+                                </span>
+                            </div>
+                        </div>
+
                         <div class="card-body p-4">
+
 
                             <span class="badge bg-secondary mb-3">
                                 @raceEvent.EventType

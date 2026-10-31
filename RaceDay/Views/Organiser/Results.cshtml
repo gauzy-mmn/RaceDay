@@ -1,0 +1,208 @@
+﻿@model List<RaceDay.Models.RaceResultViewModel>
+
+@{
+    ViewData["Title"] = "Race Results";
+
+    int eventId = ViewBag.EventId;
+    string eventName = ViewBag.EventName ?? "Event";
+
+    bool resultsPublished =
+        ViewBag.ResultsPublished is bool published && published;
+}
+
+
+<div class="container py-5">
+
+    <!-- Page Header -->
+    <div class="mb-4">
+        <h1 class="fw-bold">Race Results</h1>
+
+        <p class="text-muted">
+            View finishing times and positions for @eventName
+        </p>
+    </div>
+
+    <!-- Results Publication Status -->
+    <div class="mb-4">
+
+        @if (resultsPublished)
+        {
+            <div class="alert alert-success"
+                 role="status">
+
+                <strong>Results Published</strong>
+
+                <p class="mb-0">
+                    These results have been officially
+                    published and are available to
+                    the relevant Participants.
+                </p>
+
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-warning"
+                 role="status">
+
+                <strong>Results Unpublished</strong>
+
+                <p class="mb-0">
+                    These results have not been published.
+                    Participants cannot view their
+                    finishing results yet.
+                </p>
+
+            </div>
+        }
+
+    </div>
+
+
+    <!-- Success Message -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success" role="status">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    <!-- Error Message -->
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <!-- Results Summary -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+
+            <h6 class="text-muted">
+                Total Recorded Results
+            </h6>
+
+            <h2 class="fw-bold mb-0">
+                @Model.Count
+            </h2>
+
+        </div>
+    </div>
+
+    <!-- Results Table -->
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info" role="status">
+            No race results have been recorded
+            for this event yet.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+
+            <table class="table table-striped table-hover">
+
+                <thead>
+                    <tr>
+                        <th scope="col">Position</th>
+                        <th scope="col">Participant</th>
+                        <th scope="col">Category</th>
+                        <th scope="col">Finish Time</th>
+                        <th scope="col">Recorded Date</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var result in Model)
+                    {
+                        <tr>
+
+                            <td>
+                                <strong>
+                                    @result.FinishPosition
+                                </strong>
+                            </td>
+
+                            <td>
+                                @result.ParticipantName
+                            </td>
+
+                            <td>
+                                @result.CategoryName
+                            </td>
+
+                            <td>
+                                @result.FinishTime
+                            </td>
+
+                            <td>
+                                @(result.CapturedAt.ToString(
+                                    "dd MMM yyyy"))
+                            </td>
+
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+
+        </div>
+    }
+
+    <!-- Navigation -->
+    <div class="mt-4">
+
+        <a asp-controller="Organiser"
+           asp-action="Events"
+           class="btn btn-outline-secondary">
+            Back to Events
+        </a>
+
+        <a asp-controller="Organiser"
+           asp-action="CaptureResult"
+           asp-route-eventId="@eventId"
+           class="btn btn-primary me-2">
+            Capture Result
+        </a>
+
+     
+      
+        @if (resultsPublished)
+        {
+            <span class="badge bg-success fs-6 me-2">
+                Results Published
+            </span>
+        }
+        else if (Model.Any())
+        {
+            <form asp-controller="Organiser"
+                  asp-action="PublishResults"
+                  asp-route-eventId="@eventId"
+                  method="post"
+                  class="d-inline"
+                  onsubmit="return confirm('Are you sure you want to publish these race results? Participants will be able to view them.');">
+
+                @Html.AntiForgeryToken()
+
+                <button type="submit"
+                        class="btn btn-success me-2">
+                    Publish Results
+                </button>
+
+            </form>
+        }
+        else
+        {
+            <span class="text-muted small">
+                Record at least one result before publishing.
+            </span>
+        }
+
+
+
+    </div>
+
+</div>
+

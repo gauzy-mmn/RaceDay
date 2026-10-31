@@ -30,6 +30,7 @@ public class User
     public Role Role { get; set; } = null!;
     public ICollection<RaceEvent> OrganisedEvents { get; set; } = new List<RaceEvent>();
     public ICollection<Enrolment> Enrolments { get; set; } = new List<Enrolment>();
+    public string? ProfilePictureBlobName { get; set; }
 
 }
 
@@ -48,6 +49,12 @@ public class RaceEvent
     public User Organiser { get; set; } = null!;
     public ICollection<Category> Categories { get; set; } = new List<Category>();
     public ICollection<Enrolment> Enrolments { get; set; } = new List<Enrolment>();
+
+    public bool ResultsPublished { get; set; } = false;
+
+    public string? EventBannerBlobName { get; set; }
+
+
 }
 
 

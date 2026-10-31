@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using RaceDay.Api.Data;
 using RaceDay.Api.Models;
+using Azure.Storage.Blobs;
+using RaceDay.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +14,26 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<RaceDayDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("RaceDayDb")));
+
+builder.Services.AddSingleton<BlobServiceClient>(sp =>
+{
+    var configuration =
+        sp.GetRequiredService<IConfiguration>();
+
+    var connectionString =
+        configuration["AzureStorage:ConnectionString"];
+
+    if (string.IsNullOrWhiteSpace(connectionString))
+    {
+        throw new InvalidOperationException(
+            "Azure Blob Storage connection string is not configured.");
+    }
+
+    return new BlobServiceClient(connectionString);
+});
+
+builder.Services.AddScoped<AzureBlobStorageService>();
+
 
 /// Add authentication services
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
@@ -93,6 +115,9 @@ app.UseAuthorization();
 
 app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
 app.MapControllers();
+
+
+
 
 app.Run();
 
