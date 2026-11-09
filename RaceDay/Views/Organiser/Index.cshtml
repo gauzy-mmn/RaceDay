@@ -1,71 +1,13 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-
-@{
+﻿@{
     ViewData["Title"] = "Organiser Dashboard";
 }
-
-<div class="container py-5">
-
-    <div class="mb-4">
-        <h1 class="fw-bold">Organiser Dashboard</h1>
-        <p class="text-muted">
-            Welcome to RaceDay. Manage your races,
-            participants and results from one place.
-        </p>
+<section class="rd2-page">
+    <div class="rd2-shell">
+        <div class="rd2-dash-hero rd2-observe"><span class="rd2-kicker" style="color:#aac4df">ORGANISER / COMMAND CENTRE</span><h1>Build the next great race.</h1><p>Plan events, manage enrolments, capture results and keep every finish on track.</p><a class="rd2-pill rd2-pill-light" asp-controller="Organiser" asp-action="CreateEvent">Create event ↗</a></div>
+        <div class="rd2-dash-grid">
+            <div class="rd2-dash-tile rd2-observe"><span class="rd2-dash-index">01 / RACE CONTROL</span><div><h2>Manage events</h2><p>Update event details, banners, categories and participants.</p></div><a class="rd2-link" asp-controller="Organiser" asp-action="Events">Open events ↗</a></div>
+            <div class="rd2-dash-tile rd2-observe"><span class="rd2-dash-index">02 / THE START</span><div><h2>Create an event</h2><p>Set the date, route and distance for your next challenge.</p></div><a class="rd2-link" asp-controller="Organiser" asp-action="CreateEvent">Create race ↗</a></div>
+            <div class="rd2-dash-tile rd2-observe"><span class="rd2-dash-index">03 / YOUR IDENTITY</span><div><h2>My profile</h2><p>Keep your personal information and profile picture up to date.</p></div><a class="rd2-link" asp-controller="Profile" asp-action="Edit">Edit profile ↗</a></div>
+        </div>
     </div>
-
-    <div class="row g-4">
-
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body p-4">
-                    <h5 class="fw-bold">Manage Events</h5>
-                    <p class="text-muted">
-                        Create, update and manage
-                        your race events.
-                    </p>
-                    <a asp-controller="Organiser"
-                       asp-action="Events"
-                       class="btn btn-primary">
-                        Manage Events
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body p-4">
-                    <h5 class="fw-bold">Participants</h5>
-                    <p class="text-muted">
-                        View event registrations
-                        and participant enrolments.
-                    </p>
-                    <span class="badge bg-secondary">
-                        Coming next
-                    </span>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body p-4">
-                    <h5 class="fw-bold">Race Results</h5>
-                    <p class="text-muted">
-                        Record finish times and
-                        manage race results.
-                    </p>
-                    <span class="badge bg-secondary">
-                        Coming next
-                    </span>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-</div>
-
+</section>

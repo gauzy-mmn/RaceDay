@@ -1,173 +1,66 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-
-@model List<RaceDay.Models.EventViewModel>
-
+﻿@model List<RaceDay.Models.EventViewModel>
 @{
     ViewData["Title"] = "Discover Events";
+    var events = Model ?? new List<RaceDay.Models.EventViewModel>();
 }
-
-<div class="container py-5">
-
-    <div class="mb-4">
-        <h1 class="fw-bold">Discover Events</h1>
-        <p class="text-muted">
-            Find your next race and take on a new challenge.
-        </p>
-    </div>
-
-    <!-- Search and Filters -->
-    <form asp-controller="Participant"
-          asp-action="Events"
-          method="get"
-          class="row g-3 mb-4">
-
-        <div class="col-md-5">
-            <label for="location" class="form-label">
-                Location
-            </label>
-
-            <input type="text"
-                   id="location"
-                   name="location"
-                   value="@ViewBag.Location"
-                   class="form-control"
-                   placeholder="Search by location" />
-        </div>
-
-        <div class="col-md-4">
-            <label for="eventType" class="form-label">
-                Event Type
-            </label>
-
-            <select id="eventType"
-                    name="eventType"
-                    class="form-select">
-                <option value="">All event types</option>
-
-                @foreach (var type in Model
-                    .Select(e => e.EventType)
-                    .Where(t => !string.IsNullOrWhiteSpace(t))
-                    .Distinct()
-                    .OrderBy(t => t))
-                {
-                    if (type == (string?)ViewBag.EventType)
+<section class="rd2-page">
+    <div class="rd2-shell">
+        <div class="rd2-page-head rd2-observe"><div><span class="rd2-kicker">THE STARTING LINE</span><h1>Discover <span style="color:#8a9cb1">events.</span></h1><p>Find your next challenge. Explore running, walking and cycling events, then choose the race that moves you.</p></div></div>
+        <form asp-controller="Participant" asp-action="Events" method="get" class="rd2-filterbar rd2-observe">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-5"><label for="location" class="form-label">Location</label><input id="location" name="location" value="@ViewBag.Location" class="form-control" placeholder="City or region" /></div>
+                <div class="col-md-4">
+                    <label for="eventType" class="form-label">Event type</label><select id="eventType" name="eventType" class="form-select">
+                    <option value="">All race types</option>
+                    @foreach (var type in events.Select(e => e.EventType).Where(t => !string.IsNullOrWhiteSpace(t)).Distinct().OrderBy(t => t))
                     {
-                        <option value="@type" selected>
-                            @type
-                        </option>
+                        if (type == (string?)ViewBag.EventType)
+                        {
+                            <option value="@type" selected>@type</option>
+                        }
+                        else
+                        {
+                            <option value="@type">@type</option>
+                        }
                     }
-                    else
-                    {
-                        <option value="@type">
-                            @type
-                        </option>
-                    }
-                }
-            </select>
-        </div>
-
-        <div class="col-md-3 d-flex align-items-end">
-            <button type="submit"
-                    class="btn btn-primary w-100">
-                Search Events
-            </button>
+                </select>
+            </div>
+            <div class="col-md-3"><button type="submit" class="btn btn-primary w-100" style="min-height:52px">Find races ↗</button></div>
         </div>
     </form>
-
     @if (ViewBag.ErrorMessage != null)
     {
-        <div class="alert alert-danger" role="alert">
-            @ViewBag.ErrorMessage
-        </div>
+        <div class="alert alert-danger" role="alert">@ViewBag.ErrorMessage</div>
     }
-    else if (!Model.Any())
+    else if (Model == null || !events.Any())
     {
-        <div class="alert alert-info" role="status">
-            No upcoming events match your search.
-        </div>
+
+        <div class="alert alert-info" role="status">No upcoming events match your search. Try changing the filters.</div>
     }
     else
     {
-        <div class="row g-4">
-
-            
-            @foreach (var raceEvent in Model)
+        <div class="rd2-grid">
+            @foreach (var raceEvent in events)
             {
-                <div class="col-md-6 col-lg-4">
-                    <div class="card h-100 shadow-sm border-0 overflow-hidden">
-
-                        <!-- RaceDay Event Banner -->
-                        <div class="position-relative overflow-hidden"
-                             style="height: 200px; background-color: #eef0f3;">
-
-                            <!-- Uploaded Banner -->
-                            <img src="@Url.Action("Banner", "Events", new { id = raceEvent.EventId })"
-                                 alt="Banner for @raceEvent.Name"
-                                 class="w-100 h-100"
-                                 style="object-fit: cover;"
-                                 loading="lazy"
-                                 onerror="this.style.display='none';
-                            this.nextElementSibling.style.display='flex';" />
-
-                            <!-- Fallback Banner -->
-                            <div class="w-100 h-100 align-items-center
-                                justify-content-center flex-column"
-                                 style="display: none; background-color: #eef0f3;">
-
-                                <h4 class="fw-bold mb-1">RaceDay</h4>
-
-                                <span class="text-muted small">
-                                    Every race has a starting line.
-                                </span>
-                            </div>
-                        </div>
-
-                        <div class="card-body p-4">
-
-
-                            <span class="badge bg-secondary mb-3">
-                                @raceEvent.EventType
-                            </span>
-
-                            <h4 class="fw-bold">
-                                @raceEvent.Name
-                            </h4>
-
-                            <p class="text-muted">
-                                @raceEvent.Description
-                            </p>
-
-                            <p class="mb-2">
-                                <strong>Date:</strong>
-                                @raceEvent.EventDate.ToString(
-                                    "dd MMM yyyy HH:mm")
-                            </p>
-
-                            <p class="mb-2">
-                                <strong>Location:</strong>
-                                @raceEvent.Location
-                            </p>
-
-                            <p class="mb-3">
-                                <strong>Distance:</strong>
-                                @raceEvent.Distance km
-                            </p>
-
-                            <a asp-controller="Participant"
-                               asp-action="EventDetails"
-                               asp-route-id="@raceEvent.EventId"
-                               class="btn btn-outline-primary">
-                                View Details
-                            </a>
-
-                        </div>
+                <article class="rd2-event rd2-observe">
+                    <div class="rd2-event-cover">
+                        <img src="@Url.Action("Banner", "Events", new { id = raceEvent.EventId })" alt="Banner for @raceEvent.Name" loading="lazy" onerror="this.style.display='none'" />
+                        <div class="rd2-event-fallback" aria-hidden="true">RACEDAY / @raceEvent.EventType.ToUpperInvariant()</div>
                     </div>
-                </div>
+                    <div class="rd2-event-body">
+                        <span class="rd2-event-type">@raceEvent.EventType</span>
+                        <h3>@raceEvent.Name</h3>
+                        <p class="rd2-event-description">@raceEvent.Description</p>
+                        <div class="rd2-event-meta">
+                            <div><strong>Date</strong> &nbsp; @raceEvent.EventDate.ToString("dd MMM yyyy · HH:mm")</div>
+                            <div><strong>Location</strong> &nbsp; @raceEvent.Location</div>
+                            <div><strong>Distance</strong> &nbsp; @raceEvent.Distance km</div>
+                        </div>
+                        <a class="rd2-pill" asp-controller="Participant" asp-action="EventDetails" asp-route-id="@raceEvent.EventId">View race <span aria-hidden="true">↗</span></a>
+                    </div>
+                </article>
             }
-
         </div>
     }
-
 </div>
+</section>
