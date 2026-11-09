@@ -7,6 +7,7 @@ using RaceDay.Api.Data;
 using RaceDay.Api.Models;
 using Azure.Storage.Blobs;
 using RaceDay.Api.Services;
+using Microsoft.AspNetCore.DataProtection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,15 @@ var builder = WebApplication.CreateBuilder(args);
 var dockerHttp =
     builder.Environment.IsDevelopment() &&
     builder.Configuration.GetValue<bool>("DockerDemo:AllowHttp");
+
+
+if (dockerHttp)
+{
+    builder.Services.AddDataProtection()
+        .SetApplicationName("RaceDay.Api")
+        .PersistKeysToFileSystem(
+            new DirectoryInfo("/app/keys"));
+}
 
 
 

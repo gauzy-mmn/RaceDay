@@ -162,3 +162,4 @@ C:\Users\mogal\source\repos\gauzy-mmn\RaceDay\RaceDay.Api\bin\Debug\net8.0\Syste
 C:\Users\mogal\source\repos\gauzy-mmn\RaceDay\RaceDay.Api\bin\Debug\net8.0\System.Text.Encodings.Web.dll
 C:\Users\mogal\source\repos\gauzy-mmn\RaceDay\RaceDay.Api\bin\Debug\net8.0\System.Text.Json.dll
 C:\Users\mogal\source\repos\gauzy-mmn\RaceDay\RaceDay.Api\bin\Debug\net8.0\runtimes\browser\lib\net8.0\System.Text.Encodings.Web.dll
+C:\Users\mogal\source\repos\gauzy-mmn\RaceDay\RaceDay.Api\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

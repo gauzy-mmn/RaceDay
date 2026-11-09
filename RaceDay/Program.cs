@@ -1,5 +1,6 @@
 
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.DataProtection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,15 @@ var dockerHttp =
 
 // MVC services
 builder.Services.AddControllersWithViews();
+
+if (dockerHttp)
+{
+    builder.Services.AddDataProtection()
+        .SetApplicationName("RaceDay.Mvc")
+        .PersistKeysToFileSystem(
+            new DirectoryInfo("/app/keys"));
+}
+
 
 // Cookie authentication
 builder.Services
