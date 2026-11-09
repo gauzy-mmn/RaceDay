@@ -24,3 +24,76 @@ Part 1: https://youtu.be/xH9m8uek9uQ
 Part 2: https://youtu.be/YXeLLlfLeoU
 # AI tool Disclosure
 Used Claude AI to help with the planning and proof-reading of the API Endpoint Plan
+
+
+## Running RaceDay with Docker
+
+### Requirements
+- Docker Desktop with Linux containers enabled
+- Docker Compose
+
+### Setup
+
+1. Clone the repository.
+2. Create a `.env` file in the solution root.
+3. Add `MSSQL_SA_PASSWORD` with a strong SQL Server password.
+4. Open a terminal in the solution root.
+
+### Start the application
+
+```powershell
+docker compose config --quiet
+docker compose up -d --build
+docker compose ps
+```
+
+### Application URLs
+
+- MVC website: http://localhost:8080
+- API Swagger: http://localhost:7059/swagger
+
+### Docker services
+
+- `mvc`: ASP.NET Core MVC application
+- `api`: ASP.NET Core Web API
+- `sql`: SQL Server 2022
+- `azurite`: Local Azure Blob Storage emulator
+
+### Persistent storage
+
+Docker named volumes preserve:
+- SQL Server database records
+- Uploaded images in Azurite
+- API Data Protection keys
+- MVC Data Protection keys
+
+### Restart the application
+
+```powershell
+docker compose restart
+```
+
+### View logs
+
+```powershell
+docker compose logs --tail 50 api
+docker compose logs --tail 50 mvc
+```
+
+### Stop the application
+
+```powershell
+docker compose down
+```
+
+Do not use `docker compose down -v` unless you intentionally
+want to delete the application's stored Docker data.
+
+### Notes
+
+The Docker setup uses Azurite for local development.
+Azurite is an emulator, not a deployed Azure Storage account.
+
+The `.env` file contains secrets and must not be committed
+to source control.
+
