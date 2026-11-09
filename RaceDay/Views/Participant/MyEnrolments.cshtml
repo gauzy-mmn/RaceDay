@@ -1,0 +1,126 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+@model List<RaceDay.Models.EnrolmentViewModel>
+
+@{
+    ViewData["Title"] = "My Enrolments";
+}
+
+<div class="container py-5">
+
+    <!-- Page Header -->
+    <div class="mb-4">
+        <h1 class="fw-bold">My Enrolments</h1>
+
+        <p class="text-muted">
+            View the races you've registered for
+            and your selected categories.
+        </p>
+    </div>
+
+    <!-- Error Message -->
+    @if (ViewBag.ErrorMessage != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            @ViewBag.ErrorMessage
+        </div>
+    }
+    else if (Model == null || !Model.Any())
+    {
+        <!-- Empty State -->
+        <div class="text-center py-5">
+
+            <h4 class="fw-bold">
+                No Enrolments Yet
+            </h4>
+
+            <p class="text-muted">
+                You haven't registered for any races yet.
+                Explore upcoming events to get started.
+            </p>
+
+            <a asp-controller="Participant"
+               asp-action="Events"
+               class="btn btn-primary mt-3">
+                Discover Events
+            </a>
+
+        </div>
+    }
+    else
+    {
+        <!-- Enrolment Summary -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-4">
+
+                <h6 class="text-muted">
+                    Total Enrolments
+                </h6>
+
+                <h2 class="fw-bold mb-0">
+                    @Model.Count
+                </h2>
+
+            </div>
+        </div>
+
+        <!-- Enrolments Table -->
+        <div class="table-responsive">
+
+            <table class="table table-striped table-hover">
+
+                <thead>
+                    <tr>
+                        <th scope="col">Race Event</th>
+                        <th scope="col">Category</th>
+                        <th scope="col">Enrolment Date</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var enrolment in Model)
+                    {
+                        <tr>
+                            <td>
+                                <strong>
+                                    @enrolment.EventName
+                                </strong>
+                            </td>
+
+                            <td>
+                                @enrolment.CategoryName
+                            </td>
+
+                            <td>
+                                @(enrolment.EnrolmentDate.ToString(
+                                    "dd MMM yyyy"))
+                            </td>
+
+                            <td>
+                                <a asp-controller="Participant"
+                                   asp-action="EventDetails"
+                                   asp-route-id="@enrolment.EventId"
+                                   class="btn btn-sm btn-outline-primary">
+                                    View Event
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <!-- Navigation -->
+        <a asp-controller="Participant"
+           asp-action="Events"
+           class="btn btn-outline-secondary mt-3">
+            Discover More Events
+        </a>
+    }
+
+</div>

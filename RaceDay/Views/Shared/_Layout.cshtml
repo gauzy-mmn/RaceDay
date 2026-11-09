@@ -1,97 +1,869 @@
-﻿<!DOCTYPE html>
+﻿
+@{
+    var currentController =
+        ViewContext.RouteData.Values["controller"]?.ToString();
+
+    var currentAction =
+        ViewContext.RouteData.Values["action"]?.ToString();
+
+    bool isAuthenticated =
+        User.Identity?.IsAuthenticated == true;
+
+    bool isParticipant = User.IsInRole("Participant");
+    bool isOrganiser = User.IsInRole("Organiser");
+}
+
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - RaceDay</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/RaceDay.styles.css" asp-append-version="true" />
-</head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">RaceDay</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                    <ul class="navbar-nav ms-auto">
 
-                        @if (User.Identity?.IsAuthenticated == true)
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <meta name="theme-color" content="#F8F9FB" />
+
+    <meta name="description"
+          content="RaceDay. Discover race events, manage participation and celebrate every finish." />
+
+    <title>@ViewData["Title"] | RaceDay</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <!-- RaceDay Design System -->
+    <link rel="stylesheet"
+          href="~/css/site.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="~/RaceDay.styles.css"
+          asp-append-version="true" />
+
+    <style>
+        /* =========================================
+           RACEDAY GLOBAL LAYOUT
+           ========================================= */
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+            background: #F8F9FB;
+            color: #111827;
+            font-family: -apple-system,
+                         BlinkMacSystemFont,
+                         "Segoe UI",
+                         Arial,
+                         sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body,
+        button,
+        input,
+        select,
+        textarea {
+            font-family: -apple-system,
+                         BlinkMacSystemFont,
+                         "Segoe UI",
+                         Arial,
+                         sans-serif;
+        }
+
+        a {
+            transition: color .25s ease;
+        }
+
+        /* Accessibility */
+
+        .rd-skip-link {
+            position: fixed;
+            top: -100px;
+            left: 20px;
+            z-index: 9999;
+            padding: 12px 20px;
+            background: #111827;
+            color: white;
+            border-radius: 12px;
+        }
+
+        .rd-skip-link:focus {
+            top: 10px;
+            color: white;
+        }
+
+        /* =========================================
+           NAVIGATION
+           ========================================= */
+
+        .rd-header {
+            position: sticky;
+            top: 0;
+            z-index: 1050;
+            padding: 16px 0;
+            background: rgba(248,249,251,.72);
+            border-bottom: 1px solid rgba(17,24,39,.04);
+            -webkit-backdrop-filter: blur(18px);
+            backdrop-filter: blur(18px);
+        }
+
+        .rd-navbar {
+            width: min(1320px, calc(100% - 48px));
+            margin: 0 auto;
+            padding: 11px 20px;
+
+            background: rgba(255,255,255,.88);
+            border: 1px solid rgba(17,24,39,.075);
+            border-radius: 22px;
+
+            box-shadow:
+                0 8px 35px rgba(17,24,39,.045),
+                0 1px 3px rgba(17,24,39,.025);
+
+            -webkit-backdrop-filter: blur(22px);
+            backdrop-filter: blur(22px);
+        }
+
+        /* Brand */
+
+        .rd-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 11px;
+            text-decoration: none;
+            color: #111827;
+            flex-shrink: 0;
+        }
+
+        .rd-brand:hover {
+            color: #111827;
+        }
+
+        .rd-brand-mark {
+            display: grid;
+            place-items: center;
+
+            width: 39px;
+            height: 39px;
+
+            background: #111827;
+            color: #FFFFFF;
+
+            border-radius: 12px;
+
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: -.06em;
+        }
+
+        .rd-brand-name {
+            display: block;
+            color: #111827;
+            font-size: 21px;
+            font-weight: 750;
+            letter-spacing: -.065em;
+            line-height: 1;
+        }
+
+        .rd-brand-name span {
+            color: #176BDA;
+        }
+
+        /* Navigation items */
+
+        .rd-nav-links {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            gap: 5px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .rd-nav-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            min-height: 39px;
+            padding: 9px 13px;
+
+            color: #64748B;
+            text-decoration: none;
+
+            border-radius: 12px;
+
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+
+            transition:
+                color .25s ease,
+                background .25s ease;
+        }
+
+        .rd-nav-link:hover {
+            color: #111827;
+            background: rgba(17,24,39,.045);
+        }
+
+        .rd-nav-link.is-active {
+            color: #111827;
+            background: #F0F3F7;
+        }
+
+        /* Right-side controls */
+
+        .rd-nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .rd-nav-role {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+
+            padding: 8px 11px;
+
+            border: 1px solid #E8EDF3;
+            border-radius: 999px;
+
+            color: #64748B;
+            font-size: 11px;
+            font-weight: 650;
+        }
+
+        .rd-nav-role-dot {
+            width: 6px;
+            height: 6px;
+            background: #16845A;
+            border-radius: 50%;
+        }
+
+        .rd-nav-cta {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+
+            min-height: 40px;
+            padding: 10px 19px;
+
+            background: #111827;
+            color: #FFFFFF;
+
+            border: 1px solid #111827;
+            border-radius: 999px;
+
+            font-size: 12px;
+            font-weight: 650;
+            text-decoration: none;
+
+            transition:
+                background .3s ease,
+                transform .3s ease;
+        }
+
+        .rd-nav-cta:hover {
+            background: #176BDA;
+            border-color: #176BDA;
+            color: #FFFFFF;
+            transform: translateY(-1px);
+        }
+
+        .rd-nav-logout {
+            min-height: 39px;
+            padding: 9px 13px;
+
+            border: 1px solid #E8EDF3;
+            border-radius: 999px;
+
+            background: transparent;
+            color: #64748B;
+
+            font-size: 12px;
+            font-weight: 650;
+
+            transition:
+                border-color .3s ease,
+                color .3s ease,
+                background .3s ease;
+        }
+
+        .rd-nav-logout:hover {
+            color: #B42318;
+            border-color: #F4C7C3;
+            background: #FFF4F3;
+        }
+
+        .rd-nav-logout:focus-visible,
+        .rd-nav-link:focus-visible,
+        .rd-nav-cta:focus-visible,
+        .rd-brand:focus-visible {
+            outline: 3px solid #176BDA;
+            outline-offset: 3px;
+        }
+
+        /* Mobile toggle */
+
+        .rd-nav-toggle {
+            border: 1px solid #E8EDF3;
+            border-radius: 12px;
+            padding: 9px 11px;
+            background: #FFFFFF;
+        }
+
+        .rd-nav-toggle:focus {
+            box-shadow: 0 0 0 3px rgba(23,107,218,.2);
+        }
+
+        .rd-nav-toggle .navbar-toggler-icon {
+            width: 19px;
+            height: 19px;
+        }
+
+        /* =========================================
+           PAGE CONTENT
+           ========================================= */
+
+        .rd-page-main {
+            flex: 1 0 auto;
+            width: 100%;
+            min-width: 0;
+        }
+
+        /* =========================================
+           FOOTER
+           ========================================= */
+
+        .rd-footer {
+            position: relative;
+            overflow: hidden;
+            background: #FFFFFF;
+            border-top: 1px solid #E9EDF3;
+        }
+
+        .rd-footer-inner {
+            width: min(1180px, calc(100% - 48px));
+            margin: 0 auto;
+            padding: 65px 0 28px;
+        }
+
+        .rd-footer-main {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
+            gap: 60px;
+            padding-bottom: 55px;
+        }
+
+        .rd-footer-brand {
+            display: inline-block;
+            font-size: 30px;
+            font-weight: 800;
+            letter-spacing: -.07em;
+            text-decoration: none;
+            color: #111827;
+        }
+
+        .rd-footer-brand span {
+            color: #176BDA;
+        }
+
+        .rd-footer-brand:hover {
+            color: #111827;
+        }
+
+        .rd-footer-description {
+            max-width: 330px;
+            margin-top: 16px;
+            color: #64748B;
+            font-size: 14px;
+            line-height: 1.85;
+        }
+
+        .rd-footer-label {
+            margin-bottom: 20px;
+            color: #94A3B8;
+            font-size: 10px;
+            font-weight: 750;
+            letter-spacing: .16em;
+        }
+
+        .rd-footer-links {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 13px;
+        }
+
+        .rd-footer-links a {
+            color: #475569;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 550;
+        }
+
+        .rd-footer-links a:hover {
+            color: #176BDA;
+        }
+
+        .rd-footer-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+
+            padding-top: 23px;
+
+            border-top: 1px solid #EEF1F5;
+
+            color: #94A3B8;
+            font-size: 11px;
+        }
+
+        .rd-footer-signature {
+            color: #64748B;
+            font-weight: 650;
+            letter-spacing: .12em;
+        }
+
+        /* =========================================
+           RESPONSIVE
+           ========================================= */
+
+        @@media (max-width: 1199.98px) {
+            .rd-nav-role {
+                display: none;
+            }
+
+            .rd-nav-link {
+                padding-inline: 9px;
+                font-size: 12px;
+            }
+        }
+
+        @@media (max-width: 991.98px) {
+            .rd-header {
+                padding: 10px 0;
+            }
+
+            .rd-navbar {
+                width: calc(100% - 28px);
+                padding: 12px 15px;
+                border-radius: 18px;
+            }
+
+            .rd-navbar-collapse {
+                padding-top: 20px;
+            }
+
+            .rd-nav-links {
+                align-items: stretch;
+                flex-direction: column;
+                gap: 5px;
+                padding-bottom: 18px;
+            }
+
+            .rd-nav-link {
+                display: flex;
+                justify-content: flex-start;
+                width: 100%;
+                padding: 13px 15px;
+                font-size: 14px;
+            }
+
+            .rd-nav-actions {
+                align-items: stretch;
+                flex-direction: column;
+                gap: 10px;
+                padding-top: 16px;
+                border-top: 1px solid #E9EDF3;
+            }
+
+            .rd-nav-actions form {
+                width: 100%;
+            }
+
+            .rd-nav-cta,
+            .rd-nav-logout {
+                width: 100%;
+                justify-content: center;
+                text-align: center;
+            }
+
+            .rd-footer-main {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+        }
+
+        @@media (max-width: 575.98px) {
+            .rd-footer-inner {
+                width: calc(100% - 32px);
+                padding: 50px 0 25px;
+            }
+
+            .rd-footer-main {
+                padding-bottom: 40px;
+            }
+
+            .rd-footer-bottom {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+
+        @@media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto;
+            }
+
+            .rd-nav-link,
+            .rd-nav-cta,
+            .rd-nav-logout {
+                transition: none;
+            }
+
+            .rd-nav-cta:hover {
+                transform: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Skip Navigation -->
+    <a href="#main-content" class="rd-skip-link">
+        Skip to content
+    </a>
+
+    <!-- GLOBAL NAVIGATION -->
+    <header class="rd-header">
+
+        <nav class="navbar navbar-expand-lg rd-navbar"
+             aria-label="Main navigation">
+
+            <div class="container-fluid p-0">
+
+                <!-- BRAND -->
+                <a class="rd-brand"
+                   asp-controller="Home"
+                   asp-action="Index">
+
+                    <span class="rd-brand-mark"
+                          aria-hidden="true">
+                        RD
+                    </span>
+
+                    <span class="rd-brand-name">
+                        Race<span>Day.</span>
+                    </span>
+
+                </a>
+
+                <!-- MOBILE MENU BUTTON -->
+                <button class="navbar-toggler rd-nav-toggle"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#rdNavbar"
+                        aria-controls="rdNavbar"
+                        aria-expanded="false"
+                        aria-label="Toggle navigation">
+
+                    <span class="navbar-toggler-icon"></span>
+
+                </button>
+
+                <!-- NAVIGATION CONTENT -->
+                <div class="collapse navbar-collapse rd-navbar-collapse"
+                     id="rdNavbar">
+
+                    <!-- PRIMARY LINKS -->
+                    <ul class="navbar-nav rd-nav-links">
+
+                        <li class="nav-item">
+                            <a class="rd-nav-link @(currentController == "Home" && currentAction == "Index" ? "is-active" : "")"
+                               asp-controller="Home"
+                               asp-action="Index">
+                                Home
+                            </a>
+                        </li>
+
+                        @if (isAuthenticated && isParticipant)
                         {
                             <li class="nav-item">
-                                <span class="nav-link text-dark">
-                                    @User.FindFirst(
-                                        System.Security.Claims.ClaimTypes.Role
-                                    )?.Value
-                                </span>
+                                <a class="rd-nav-link @(currentController == "Participant" && currentAction == "Index" ? "is-active" : "")"
+                                   asp-controller="Participant"
+                                   asp-action="Index">
+                                    Dashboard
+                                </a>
                             </li>
 
                             <li class="nav-item">
-                                <form asp-controller="Account"
-                                      asp-action="Logout"
-                                      method="post"
-                                      class="d-inline">
-
-                                    @Html.AntiForgeryToken()
-
-                                    <button type="submit"
-                                            class="btn btn-outline-danger ms-2">
-                                        Logout
-                                    </button>
-                                </form>
+                                <a class="rd-nav-link @(currentController == "Participant" && currentAction == "Events" ? "is-active" : "")"
+                                   asp-controller="Participant"
+                                   asp-action="Events">
+                                    Discover Events
+                                </a>
                             </li>
+
+                            <li class="nav-item">
+                                <a class="rd-nav-link @(currentController == "Participant" && currentAction == "MyEnrolments" ? "is-active" : "")"
+                                   asp-controller="Participant"
+                                   asp-action="MyEnrolments">
+                                    My Enrolments
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="rd-nav-link @(currentController == "Participant" && currentAction == "MyResults" ? "is-active" : "")"
+                                   asp-controller="Participant"
+                                   asp-action="MyResults">
+                                    My Results
+                                </a>
+                            </li>
+                        }
+
+                        @if (isAuthenticated && isOrganiser)
+                        {
+                            <li class="nav-item">
+                                <a class="rd-nav-link @(currentController == "Organiser" && currentAction == "Index" ? "is-active" : "")"
+                                   asp-controller="Organiser"
+                                   asp-action="Index">
+                                    Dashboard
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="rd-nav-link @(currentController == "Organiser" && currentAction == "Events" ? "is-active" : "")"
+                                   asp-controller="Organiser"
+                                   asp-action="Events">
+                                    Manage Events
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="rd-nav-link @(currentController == "Organiser" && currentAction == "CreateEvent" ? "is-active" : "")"
+                                   asp-controller="Organiser"
+                                   asp-action="CreateEvent">
+                                    Create Event
+                                </a>
+                            </li>
+                        }
+
+                        @if (isAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="rd-nav-link @(currentController == "Profile" ? "is-active" : "")"
+                                   asp-controller="Profile"
+                                   asp-action="Edit">
+                                    My Profile
+                                </a>
+                            </li>
+                        }
+
+                    </ul>
+
+                    <!-- ACCOUNT CONTROLS -->
+                    <div class="rd-nav-actions">
+
+                        @if (isAuthenticated)
+                        {
+                            <span class="rd-nav-role">
+                                <span class="rd-nav-role-dot"></span>
+
+                                @if (isOrganiser)
+                                {
+                                    <span>Organiser</span>
+                                }
+                                else if (isParticipant)
+                                {
+                                    <span>Participant</span>
+                                }
+                                else
+                                {
+                                    <span>Member</span>
+                                }
+                            </span>
+
+                            <form asp-controller="Account"
+                                  asp-action="Logout"
+                                  method="post">
+
+                                @Html.AntiForgeryToken()
+
+                                <button type="submit"
+                                        class="rd-nav-logout">
+                                    Logout
+                                </button>
+
+                            </form>
                         }
                         else
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark"
-                                   asp-controller="Account"
-                                   asp-action="Login">
-                                    Login
-                                </a>
-                            </li>
+                            <a class="rd-nav-link"
+                               asp-controller="Account"
+                               asp-action="Login">
+                                Sign In
+                            </a>
 
-                            <li class="nav-item">
-                                <a class="btn btn-primary ms-2"
-                                   asp-controller="Account"
-                                   asp-action="Register">
-                                    Register
-                                </a>
-                            </li>
+                            <a class="rd-nav-cta"
+                               asp-controller="Account"
+                               asp-action="Register">
+                                Get Started
+                                <span aria-hidden="true">↗</span>
+                            </a>
                         }
 
-                    </ul>
+                    </div>
 
                 </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - RaceDay - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            </div>
+
+        </nav>
+
+    </header>
+
+    <!-- PAGE CONTENT -->
+    <main id="main-content"
+          class="rd-page-main"
+          role="main">
+
+        @RenderBody()
+
+    </main>
+
+    <!-- GLOBAL FOOTER -->
+    <footer class="rd-footer">
+
+        <div class="rd-footer-inner">
+
+            <div class="rd-footer-main">
+
+                <!-- FOOTER BRAND -->
+                <div>
+                    <a class="rd-footer-brand"
+                       asp-controller="Home"
+                       asp-action="Index">
+                        Race<span>Day.</span>
+                    </a>
+
+                    <p class="rd-footer-description">
+                        For the runners, the dreamers and the
+                        ones who never stop moving.
+
+                        Discover your next challenge.
+                        Every race starts somewhere.
+                    </p>
+                </div>
+
+                <!-- FOOTER NAVIGATION -->
+                <div>
+
+                    <div class="rd-footer-label">
+                        EXPLORE
+                    </div>
+
+                    <div class="rd-footer-links">
+
+                        <a asp-controller="Home"
+                           asp-action="Index">
+                            Home
+                        </a>
+
+                        @if (isAuthenticated && isParticipant)
+                        {
+                            <a asp-controller="Participant"
+                               asp-action="Events">
+                                Discover Events
+                            </a>
+
+                            <a asp-controller="Participant"
+                               asp-action="MyResults">
+                                My Results
+                            </a>
+                        }
+
+                        @if (isAuthenticated && isOrganiser)
+                        {
+                            <a asp-controller="Organiser"
+                               asp-action="Events">
+                                Manage Events
+                            </a>
+
+                            <a asp-controller="Organiser"
+                               asp-action="CreateEvent">
+                                Create Event
+                            </a>
+                        }
+
+                        @if (!isAuthenticated)
+                        {
+                            <a asp-controller="Account"
+                               asp-action="Register">
+                                Join RaceDay
+                            </a>
+
+                            <a asp-controller="Account"
+                               asp-action="Login">
+                                Sign In
+                            </a>
+                        }
+
+                        <a asp-controller="Home"
+                           asp-action="Privacy">
+                            Privacy
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- FOOTER BOTTOM -->
+            <div class="rd-footer-bottom">
+
+                <span>
+                    &copy; @DateTime.Now.Year RaceDay.
+                    All rights reserved.
+                </span>
+
+                <span class="rd-footer-signature">
+                    THE STARTING LINE
+                </span>
+
+            </div>
+
         </div>
+
     </footer>
+
+    <!-- SCRIPTS -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script src="~/js/site.js"
+            asp-append-version="true"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
+
 </body>
 </html>

@@ -1,0 +1,66 @@
+﻿@model List<RaceDay.Models.EventViewModel>
+@{
+    ViewData["Title"] = "Discover Events";
+    var events = Model ?? new List<RaceDay.Models.EventViewModel>();
+}
+<section class="rd2-page">
+    <div class="rd2-shell">
+        <div class="rd2-page-head rd2-observe"><div><span class="rd2-kicker">THE STARTING LINE</span><h1>Discover <span style="color:#8a9cb1">events.</span></h1><p>Find your next challenge. Explore running, walking and cycling events, then choose the race that moves you.</p></div></div>
+        <form asp-controller="Participant" asp-action="Events" method="get" class="rd2-filterbar rd2-observe">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-5"><label for="location" class="form-label">Location</label><input id="location" name="location" value="@ViewBag.Location" class="form-control" placeholder="City or region" /></div>
+                <div class="col-md-4">
+                    <label for="eventType" class="form-label">Event type</label><select id="eventType" name="eventType" class="form-select">
+                    <option value="">All race types</option>
+                    @foreach (var type in events.Select(e => e.EventType).Where(t => !string.IsNullOrWhiteSpace(t)).Distinct().OrderBy(t => t))
+                    {
+                        if (type == (string?)ViewBag.EventType)
+                        {
+                            <option value="@type" selected>@type</option>
+                        }
+                        else
+                        {
+                            <option value="@type">@type</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-3"><button type="submit" class="btn btn-primary w-100" style="min-height:52px">Find races ↗</button></div>
+        </div>
+    </form>
+    @if (ViewBag.ErrorMessage != null)
+    {
+        <div class="alert alert-danger" role="alert">@ViewBag.ErrorMessage</div>
+    }
+    else if (Model == null || !events.Any())
+    {
+
+        <div class="alert alert-info" role="status">No upcoming events match your search. Try changing the filters.</div>
+    }
+    else
+    {
+        <div class="rd2-grid">
+            @foreach (var raceEvent in events)
+            {
+                <article class="rd2-event rd2-observe">
+                    <div class="rd2-event-cover">
+                        <img src="@Url.Action("Banner", "Events", new { id = raceEvent.EventId })" alt="Banner for @raceEvent.Name" loading="lazy" onerror="this.style.display='none'" />
+                        <div class="rd2-event-fallback" aria-hidden="true">RACEDAY / @raceEvent.EventType.ToUpperInvariant()</div>
+                    </div>
+                    <div class="rd2-event-body">
+                        <span class="rd2-event-type">@raceEvent.EventType</span>
+                        <h3>@raceEvent.Name</h3>
+                        <p class="rd2-event-description">@raceEvent.Description</p>
+                        <div class="rd2-event-meta">
+                            <div><strong>Date</strong> &nbsp; @raceEvent.EventDate.ToString("dd MMM yyyy · HH:mm")</div>
+                            <div><strong>Location</strong> &nbsp; @raceEvent.Location</div>
+                            <div><strong>Distance</strong> &nbsp; @raceEvent.Distance km</div>
+                        </div>
+                        <a class="rd2-pill" asp-controller="Participant" asp-action="EventDetails" asp-route-id="@raceEvent.EventId">View race <span aria-hidden="true">↗</span></a>
+                    </div>
+                </article>
+            }
+        </div>
+    }
+</div>
+</section>

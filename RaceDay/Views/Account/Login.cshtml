@@ -1,100 +1,45 @@
 ﻿@model RaceDay.Models.LoginViewModel
-
 @{
-    ViewData["Title"] = "Login";
+    ViewData["Title"] = "Sign In";
 }
-
-@if (TempData["SuccessMessage"] is string message)
-{
-    <div class="alert alert-success alert-dismissible fade show"
-         role="alert">
-
-        @message
-
-        <button type="button"
-                class="btn-close"
-                data-bs-dismiss="alert"
-                aria-label="Close">
-        </button>
-    </div>
-}
-
-
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6 col-lg-5">
-
-            <div class="card shadow border-0 rounded-4">
-                <div class="card-body p-4">
-
-                    <h2 class="text-center fw-bold mb-2">
-                        RaceDay
-                    </h2>
-
-                    <p class="text-center text-muted mb-4">
-                        Welcome back! Sign in to continue.
-                    </p>
-
-                    <form asp-controller="Account"
-                          asp-action="Login"
-                          method="post">
-
-                        @Html.AntiForgeryToken()
-
-                        <div asp-validation-summary="ModelOnly"
-                             class="text-danger mb-3"></div>
-
-                        <div class="mb-3">
-                            <label asp-for="Email"
-                                   class="form-label">
-                                Email Address
-                            </label>
-
-                            <input asp-for="Email"
-                                   class="form-control"
-                                   placeholder="Enter your email" />
-
-                            <span asp-validation-for="Email"
-                                  class="text-danger"></span>
-                        </div>
-
-                        <div class="mb-4">
-                            <label asp-for="Password"
-                                   class="form-label">
-                                Password
-                            </label>
-
-                            <input asp-for="Password"
-                                   type="password"
-                                   class="form-control"
-                                   placeholder="Enter your password" />
-
-                            <span asp-validation-for="Password"
-                                  class="text-danger"></span>
-                        </div>
-
-                        <button type="submit"
-                                class="btn btn-primary w-100 py-2">
-                            Login
-                        </button>
-
-                    </form>
-
-                    <p class="text-center mt-4 mb-0">
-                        Don't have an account?
-                        <a asp-controller="Account"
-                           asp-action="Register">
-                            Register here
-                        </a>
-                    </p>
-
+<div class="rd2-auth">
+    <section class="rd2-auth-form-side">
+        <div class="rd2-auth-inner">
+            <span class="rd2-kicker">RACEDAY / MEMBER ACCESS</span>
+            <h1 class="rd2-title">Welcome <em>back.</em></h1>
+            <p class="rd2-lead mb-4">Your next race starts here. Sign in and pick up where you left off.</p>
+            @if (TempData["SuccessMessage"] is string message)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="status">
+                    @message
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-            </div>
-
+            }
+            <form asp-controller="Account" asp-action="Login" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+                <div class="mb-4">
+                    <label asp-for="Email" class="form-label">Email address</label>
+                    <input asp-for="Email" type="email" class="form-control" placeholder="you@example.com" autocomplete="email" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+                <div class="mb-4">
+                    <label asp-for="Password" class="form-label">Password</label>
+                    <input asp-for="Password" type="password" class="form-control" placeholder="Enter your password" autocomplete="current-password" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+                <button type="submit" class="rd2-pill">Sign in <span aria-hidden="true">↗</span></button>
+            </form>
+            <p class="rd2-auth-note">New to RaceDay? <a asp-controller="Account" asp-action="Register">Create an account</a></p>
+            <div class="rd2-line mt-5 mb-3"></div>
+            <div class="rd2-kicker">EVERY RACE STARTS SOMEWHERE</div>
         </div>
-    </div>
+    </section>
+    <aside class="rd2-auth-visual" aria-label="Race photography">
+        <img src="~/images/auth-runner.jpg" asp-append-version="true" alt="Runner getting ready on an athletics track" onerror="this.style.display='none'" />
+        <div class="rd2-auth-visual-text"><span class="rd2-kicker" style="color:#d1e0f4">BEYOND THE FINISH</span><h2>The journey continues.</h2><p>Every starting line is another chance to go further.</p></div>
+    </aside>
 </div>
-
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }

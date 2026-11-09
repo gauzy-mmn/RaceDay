@@ -5,13 +5,51 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using RaceDay.Api.Data;
 using RaceDay.Api.Models;
+using Azure.Storage.Blobs;
+using RaceDay.Api.Services;
+using Microsoft.AspNetCore.DataProtection;
 
 var builder = WebApplication.CreateBuilder(args);
+
+
+var dockerHttp =
+    builder.Environment.IsDevelopment() &&
+    builder.Configuration.GetValue<bool>("DockerDemo:AllowHttp");
+
+
+if (dockerHttp)
+{
+    builder.Services.AddDataProtection()
+        .SetApplicationName("RaceDay.Api")
+        .PersistKeysToFileSystem(
+            new DirectoryInfo("/app/keys"));
+}
+
 
 
 builder.Services.AddDbContext<RaceDayDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("RaceDayDb")));
+
+builder.Services.AddSingleton<BlobServiceClient>(sp =>
+{
+    var configuration =
+        sp.GetRequiredService<IConfiguration>();
+
+    var connectionString =
+        configuration["AzureStorage:ConnectionString"];
+
+    if (string.IsNullOrWhiteSpace(connectionString))
+    {
+        throw new InvalidOperationException(
+            "Azure Blob Storage connection string is not configured.");
+    }
+
+    return new BlobServiceClient(connectionString);
+});
+
+builder.Services.AddScoped<AzureBlobStorageService>();
+
 
 /// Add authentication services
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
@@ -83,7 +121,8 @@ app.UseSwaggerUI(c =>
     c.InjectStylesheet("/swagger-custom.css");
 });
 
-if (!app.Environment.IsEnvironment("Testing"))
+
+if (!app.Environment.IsEnvironment("Testing") && !dockerHttp)
 {
     app.UseHttpsRedirection();
 }
@@ -93,6 +132,9 @@ app.UseAuthorization();
 
 app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
 app.MapControllers();
+
+
+
 
 app.Run();
 

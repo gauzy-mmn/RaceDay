@@ -1,8 +1,65 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "The Starting Line";
+    bool signedIn = User.Identity?.IsAuthenticated == true;
+    bool organiser = User.IsInRole("Organiser");
+    string goController = !signedIn ? "Account" : organiser ? "Organiser" : "Participant";
+    string goAction = !signedIn ? "Register" : "Events";
+    string goLabel = !signedIn ? "Join RaceDay" : organiser ? "Manage events" : "Explore events";
 }
-
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="rd2-home">
+    <section class="rd2-homehero" aria-labelledby="rd2-hero-title">
+        <img src="~/images/hero-race.jpg" asp-append-version="true" alt="Marathon runners moving through a city race" fetchpriority="high" onerror="this.style.display='none'" />
+        <div class="rd2-shell rd2-homehero-content">
+            <div class="rd2-hero-head">
+                <span class="rd2-kicker">RACEDAY / START SOMETHING</span>
+                <h1 id="rd2-hero-title">The race is on.<span>Make it yours.</span></h1>
+                <p>Discover events, join the starting line and celebrate every finish. One place for the people who keep moving.</p>
+                <div class="rd2-hero-actions">
+                    <a class="rd2-pill rd2-pill-light" asp-controller="@goController" asp-action="@goAction">@goLabel <span aria-hidden="true">↗</span></a>
+                    <a class="rd2-link" href="#experience">Explore the experience <span aria-hidden="true">↓</span></a>
+                </div>
+            </div>
+            <div class="rd2-hero-bottom"><span>01 / THE STARTING LINE</span><span>RUN <b>✳</b> WALK <b>✳</b> CYCLE</span></div>
+        </div>
+    </section>
+    <div class="rd2-ticker" aria-label="RaceDay activities">
+        <div class="rd2-shell rd2-ticker-inner"><span>FIND YOUR RACE</span><i aria-hidden="true">✳</i><span>OWN YOUR PACE</span><i aria-hidden="true">✳</i><span>CROSS THE LINE</span></div>
+    </div>
+    <section class="rd2-editorial" id="experience">
+        <div class="rd2-shell rd2-editorial-grid">
+            <div class="rd2-observe"><span class="rd2-kicker">01 / THE EXPERIENCE</span><h2>More than just <span>a finish line.</span></h2></div>
+            <div class="rd2-observe">
+                <p>The excitement before the start. The challenge halfway through. The feeling when you cross the line.</p>
+                <p>RaceDay brings event discovery, enrolment and published results into one place, for both participants and organisers.</p>
+                <a asp-controller="@goController" asp-action="@goAction" class="rd2-link">Get moving ↗</a>
+            </div>
+        </div>
+    </section>
+    <section class="rd2-features" aria-labelledby="rd2-feature-heading">
+        <div class="rd2-shell">
+            <div class="rd2-section-head rd2-observe">
+                <div><span class="rd2-kicker">02 / YOUR JOURNEY</span><h2 id="rd2-feature-heading">Every step.<span>Every story.</span></h2></div>
+                <p>Find your next challenge, join the field and follow your race results.</p>
+            </div>
+            <div class="rd2-bento">
+                <article class="rd2-story rd2-observe">
+                    <img src="~/images/feature-discover.jpg" asp-append-version="true" loading="lazy" alt="Runners preparing at a race start" onerror="this.style.display='none'" />
+                    <div class="rd2-story-number">01 / DISCOVER ↗</div>
+                    <div><h3>Find a race worth waking up for.</h3><p>Explore events by location and category. Your next starting line is out there.</p></div>
+                </article>
+                <article class="rd2-story rd2-observe">
+                    <img src="~/images/feature-participate.jpg" asp-append-version="true" loading="lazy" alt="Athletes running a road race" onerror="this.style.display='none'" />
+                    <div class="rd2-story-number">02 / PARTICIPATE ↗</div>
+                    <div><h3>Show up. Go further.</h3><p>Enrol in your chosen event and take your place on race day.</p></div>
+                </article>
+                <article class="rd2-story rd2-observe">
+                    <img src="~/images/feature-achieve.jpg" asp-append-version="true" loading="lazy" alt="A runner celebrating at the finish line" onerror="this.style.display='none'" />
+                    <div class="rd2-story-number">03 / ACHIEVE ✓</div>
+                    <div><h3>Every finish tells a story.</h3><p>See published finishing times, celebrate the progress and look ahead to the next challenge.</p></div>
+                </article>
+            </div>
+        </div>
+    </section>
+    <section class="rd2-statement"><div class="rd2-shell rd2-observe"><span class="rd2-kicker">03 / BEYOND THE FINISH</span><h2>It's not about being first. <span>It's about moving forward.</span></h2></div></section>
+    <section class="rd2-bottomcta"><div class="rd2-shell rd2-observe"><span class="rd2-kicker" style="color:#acbed5">THE STARTING LINE IS WAITING</span><h2>Your next chapter starts here.</h2><p>One decision. One challenge. One unforgettable race.</p><a class="rd2-pill rd2-pill-light" asp-controller="@goController" asp-action="@goAction">@goLabel ↗</a></div></section>
 </div>

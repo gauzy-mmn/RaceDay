@@ -100,18 +100,33 @@ public class ResultsController : ControllerBase
 
     /// <summary>Lists the logged-in Participant's own results.</summary>
     /// <remarks>Returns 200 with the participant's results across events; 401 if not logged in; 403 if not a Participant.</remarks>
+
     [HttpGet("results/me")]
     [Authorize(Roles = AppRoles.Participant)]
-    [ProducesResponseType(typeof(IEnumerable<ResultResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(
+        typeof(IEnumerable<ResultResponse>),
+        StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<IEnumerable<ResultResponse>>> GetMine()
     {
+        // Identify the logged-in Participant
         var userId = User.GetUserId();
-        var results = await _db.Results.WithDetails().AsNoTracking()
-            .Where(r => r.Enrolment.ParticipantId == userId).OrderBy(r => r.CapturedAt).ToListAsync();
+
+        // Retrieve only officially published results
+        var results = await _db.Results
+            .WithDetails()
+            .AsNoTracking()
+            .Where(r =>
+                r.Enrolment.ParticipantId == userId &&
+                r.Enrolment.Event.ResultsPublished)
+            .OrderByDescending(r => r.CapturedAt)
+            .ToListAsync();
+
+        // Return published results to the Participant
         return Ok(results.Select(ResultResponse.From));
     }
+
 
     /// <summary>Lists all results for an event (owning Organiser only).</summary>
     /// <remarks>
@@ -134,4 +149,89 @@ public class ResultsController : ControllerBase
             .Where(r => r.Enrolment.EventId == eventId).OrderBy(r => r.FinishPosition).ToListAsync();
         return Ok(results.Select(ResultResponse.From));
     }
+
+    /// <summary>
+    /// Publishes race results for an event (owning Organiser only).
+    /// </summary>
+    /// <remarks>
+    /// Returns 200 when results are published successfully.
+    /// Returns 401 if not authenticated,
+    /// 403 if not the event's owning Organiser,
+    /// and 404 if the event does not exist.
+    /// </remarks>
+
+    [HttpPost("events/{eventId:int}/results/publish")]
+    [Authorize(Roles = AppRoles.Organiser)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> Publish(int eventId)
+    {
+        // Retrieve the event from SQL Server
+        var ev = await _db.Events
+            .SingleOrDefaultAsync(e => e.EventId == eventId);
+
+        // Check whether the event exists
+        if (ev == null)
+        {
+            return NotFound();
+        }
+
+        // Only the owning Organiser can publish results
+        if (ev.OrganiserId != User.GetUserId())
+        {
+            return Forbid();
+        }
+
+        // Return success if already published
+        if (ev.ResultsPublished)
+        {
+            return Ok(new
+            {
+                eventId = ev.EventId,
+                resultsPublished = true,
+                message = "Results are already published."
+            });
+        }
+
+        // Prevent publishing on or before the event date
+        // Conservatively require a later UTC calendar date
+        if (ev.EventDate.Date >= DateTime.UtcNow.Date)
+        {
+            return Conflict(new
+            {
+                message =
+                    "Results cannot be published until after the event date."
+            });
+        }
+
+        // Verify that at least one result has been captured
+        bool hasResults = await _db.Results
+            .AnyAsync(r => r.Enrolment.EventId == eventId);
+
+        if (!hasResults)
+        {
+            return Conflict(new
+            {
+                message =
+                    "At least one race result must be recorded before publishing."
+            });
+        }
+
+        // Publish the event results
+        ev.ResultsPublished = true;
+
+        await _db.SaveChangesAsync();
+
+        return Ok(new
+        {
+            eventId = ev.EventId,
+            resultsPublished = true,
+            message = "Race results published successfully."
+        });
+    }
+
+
 }

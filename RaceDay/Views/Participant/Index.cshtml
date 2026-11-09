@@ -1,0 +1,36 @@
+﻿@{
+    ViewData["Title"] = "Participant Dashboard";
+}
+<section class="rd2-page">
+    <div class="rd2-shell">
+        <div class="rd2-dash-hero rd2-observe">
+            <span class="rd2-kicker" style="color:#aac4df">PARTICIPANT / DASHBOARD</span>
+            <h1>Make every mile count.</h1>
+            <p>Your races, enrolments and results are all one step away. Find a challenge and keep moving forward.</p
+            ><a class="rd2-pill rd2-pill-light" asp-controller="Participant" asp-action="Events">Find your next race ↗</a>
+            </div>
+        <div class="rd2-dash-grid">
+            <div class="rd2-dash-tile rd2-observe">
+                <span class="rd2-dash-index">01 / DISCOVER</span>
+                <div><h2>Discover events</h2>
+                    <p>Find upcoming running, walking and cycling events.</p>
+                    </div>
+                    <a class="rd2-link" asp-controller="Participant" asp-action="Events">Explore races ↗</a>
+                </div>
+            <div class="rd2-dash-tile rd2-observe">
+                <span class="rd2-dash-index">02 / YOUR JOURNEY</span>
+                <div><h2>My enrolments</h2>
+                    <p>See the races you have joined.</p>
+                    </div><a class="rd2-link" asp-controller="Participant" asp-action="MyEnrolments">View enrolments ↗</a>
+
+                </div>
+            <div class="rd2-dash-tile rd2-observe">
+                <span class="rd2-dash-index">03 / THE FINISH</span>
+                <div><h2>My results</h2>
+                    <p>See finish times for events whose results have been published.</p>
+                    </div>
+                    <a class="rd2-link" asp-controller="Participant" asp-action="MyResults">View results ↗</a>
+                </div>
+        </div>
+    </div>
+</section>

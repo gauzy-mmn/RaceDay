@@ -5,6 +5,7 @@ using RaceDay.Api.Data;
 using RaceDay.Api.Dtos;
 using RaceDay.Api.Extensions;
 using RaceDay.Api.Models;
+using RaceDay.Api.Services;
 
 namespace RaceDay.Api.Controllers;
 
@@ -129,4 +130,226 @@ public class EventsController : ControllerBase
         await _db.SaveChangesAsync();
         return NoContent();
     }
+
+
+    [HttpPost("/api/events/{eventId:int}/banner")]
+    [Authorize(Roles = AppRoles.Organiser)]
+    [Consumes("multipart/form-data")]
+    [RequestSizeLimit(6 * 1024 * 1024)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+    public async Task<IActionResult> UploadEventBanner(
+        int eventId,
+        IFormFile file,
+        [FromServices] AzureBlobStorageService storage,
+        [FromServices] ILogger<EventsController> logger)
+    {
+        // Find the event
+        var raceEvent = await _db.Events
+            .SingleOrDefaultAsync(e => e.EventId == eventId);
+
+        if (raceEvent == null)
+        {
+            return NotFound(new
+            {
+                message = "Event not found."
+            });
+        }
+
+        // Only the event owner can replace its banner
+        if (raceEvent.OrganiserId != User.GetUserId())
+        {
+            return Forbid();
+        }
+
+        // Validate the selected file
+        if (file == null || file.Length == 0)
+        {
+            return BadRequest(new
+            {
+                message = "Please select an event banner."
+            });
+        }
+
+        // Remember the previous banner filename
+        var oldBlobName = raceEvent.EventBannerBlobName;
+
+        try
+        {
+            // 1. Upload the replacement banner
+            var newBlobName = await storage.UploadImageAsync(
+                file,
+                "event-banners",
+                HttpContext.RequestAborted);
+
+            // 2. Update the event's banner reference
+            raceEvent.EventBannerBlobName = newBlobName;
+
+            try
+            {
+                await _db.SaveChangesAsync();
+            }
+            catch (Exception dbEx)
+            {
+                // Database save failed.
+                // Attempt to delete the newly uploaded image.
+                try
+                {
+                    await storage.DeleteImageAsync(
+                        newBlobName,
+                        "event-banners",
+                        CancellationToken.None);
+                }
+                catch (Exception cleanupEx)
+                {
+                    logger.LogWarning(
+                        cleanupEx,
+                        "Failed to remove orphaned event banner {BlobName}",
+                        newBlobName);
+                }
+
+                logger.LogError(
+                    dbEx,
+                    "Failed to save banner for event {EventId}",
+                    eventId);
+
+                return StatusCode(500, new
+                {
+                    message = "Unable to save event banner."
+                });
+            }
+
+            // 3. Delete the old banner after SQL succeeds
+            if (!string.IsNullOrWhiteSpace(oldBlobName) &&
+                oldBlobName != newBlobName)
+            {
+                try
+                {
+                    await storage.DeleteImageAsync(
+                        oldBlobName,
+                        "event-banners",
+                        CancellationToken.None);
+                }
+                catch (Exception cleanupEx)
+                {
+                    // The new banner is already saved.
+                    // Log the failure without rejecting the upload.
+                    logger.LogWarning(
+                        cleanupEx,
+                        "Failed to delete previous banner {BlobName}",
+                        oldBlobName);
+                }
+            }
+
+            // 4. Return success
+            return Ok(new
+            {
+                message = "Event banner uploaded successfully.",
+                eventId = raceEvent.EventId,
+                eventBannerBlobName = newBlobName
+            });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new
+            {
+                message = ex.Message
+            });
+        }
+        catch (Azure.RequestFailedException ex)
+        {
+            logger.LogError(
+                ex,
+                "Azure banner upload failed for event {EventId}",
+                eventId);
+
+            return StatusCode(
+                StatusCodes.Status503ServiceUnavailable,
+                new
+                {
+                    message = "Image storage is temporarily unavailable."
+                });
+        }
+    }
+
+
+    // Retrieve an event banner from Azure Blob Storage
+    [HttpGet("{eventId:int}/banner")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetEventBanner(
+        int eventId,
+        [FromServices] AzureBlobStorageService storage)
+    {
+        // Find the event in SQL Server
+        var raceEvent = await _db.Events
+            .AsNoTracking()
+            .SingleOrDefaultAsync(e => e.EventId == eventId);
+
+        if (raceEvent == null)
+        {
+            return NotFound(new
+            {
+                message = "Event not found."
+            });
+        }
+
+        // Check whether the event has a banner
+        if (string.IsNullOrWhiteSpace(
+            raceEvent.EventBannerBlobName))
+        {
+            return NotFound(new
+            {
+                message = "This event has no banner."
+            });
+        }
+
+        try
+        {
+            // Retrieve the image from private Blob Storage
+            var (content, contentType) =
+                await storage.GetEventBannerAsync(
+                    raceEvent.EventBannerBlobName,
+                    HttpContext.RequestAborted);
+
+            // Validate the returned image type
+            if (contentType != "image/jpeg" &&
+                contentType != "image/png" &&
+                contentType != "image/webp")
+            {
+                await content.DisposeAsync();
+
+                return StatusCode(502, new
+                {
+                    message = "Invalid banner content type."
+                });
+            }
+
+            // Prevent browser MIME-type sniffing
+            Response.Headers["X-Content-Type-Options"] =
+                "nosniff";
+
+            // Return the image to the browser
+            return File(content, contentType);
+        }
+        catch (Azure.RequestFailedException ex)
+            when (ex.Status == 404)
+        {
+            return NotFound(new
+            {
+                message = "Banner image not found in storage."
+            });
+        }
+        catch (Azure.RequestFailedException)
+        {
+            return StatusCode(503, new
+            {
+                message = "Banner storage is temporarily unavailable."
+            });
+        }
+    }
+
 }

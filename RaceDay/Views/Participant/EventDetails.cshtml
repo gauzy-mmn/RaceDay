@@ -1,0 +1,238 @@
+﻿@model RaceDay.Models.EventDetailsViewModel
+
+@{
+    ViewData["Title"] = "Event Details";
+}
+
+@if (TempData["SuccessMessage"] is string successMessage)
+{
+    <div class="alert alert-success"
+         role="status">
+        @successMessage
+    </div>
+}
+
+@if (TempData["ErrorMessage"] is string errorMessage)
+{
+    <div class="alert alert-danger"
+         role="alert">
+        @errorMessage
+    </div>
+}
+
+
+<div class="container py-5">
+
+    <!-- Back Navigation -->
+    <div class="mb-4">
+        <a asp-controller="Participant"
+           asp-action="Events"
+           class="btn btn-outline-secondary">
+            Back to Events
+        </a>
+    </div>
+
+    <!-- RaceDay Event Banner -->
+    <div class="mb-4">
+        <div class="rounded-4 overflow-hidden position-relative"
+             style="height: 320px; background-color: #eef0f3;">
+
+            
+            <img src="@Url.Action("Banner", "Events", new { id = Model.Event.EventId })"
+                 alt="Event banner"
+                 class="w-100 h-100"
+                 style="object-fit: cover;"
+                 onerror="this.style.display='none';
+            this.nextElementSibling.style.display='flex';" />
+
+            <!-- Fallback when no banner exists -->
+            <div class="w-100 h-100 align-items-center
+                justify-content-center flex-column"
+                 style="display: none; background-color: #eef0f3;">
+
+                <h2 class="fw-bold mb-2">RaceDay</h2>
+
+                <p class="text-muted mb-0">
+                    Every race has a starting line.
+                </p>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Event Information -->
+    <div class="mb-4">
+
+        <span class="badge bg-secondary mb-3">
+            @Model.Event.EventType
+        </span>
+
+        <h1 class="fw-bold">
+            @Model.Event.Name
+        </h1>
+
+        <p class="text-muted">
+            @Model.Event.Description
+        </p>
+
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Event Details -->
+        <div class="col-lg-7">
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+
+                    <h4 class="fw-bold mb-4">
+                        Race Information
+                    </h4>
+
+                    <dl class="row">
+
+                        <dt class="col-sm-4">
+                            Event Date
+                        </dt>
+                        <dd class="col-sm-8">
+                            @Model.Event.EventDate.ToString(
+                                "dd MMM yyyy HH:mm")
+                        </dd>
+
+                        <dt class="col-sm-4">
+                            Location
+                        </dt>
+                        <dd class="col-sm-8">
+                            @Model.Event.Location
+                        </dd>
+
+                        <dt class="col-sm-4">
+                            Distance
+                        </dt>
+                        <dd class="col-sm-8">
+                            @Model.Event.Distance km
+                        </dd>
+
+                        <dt class="col-sm-4">
+                            Event Type
+                        </dt>
+                        <dd class="col-sm-8">
+                            @Model.Event.EventType
+                        </dd>
+
+                    </dl>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Available Categories -->
+        <div class="col-lg-5">
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+
+                    <h4 class="fw-bold mb-3">
+                        Available Categories
+                    </h4>
+
+                    @if (!Model.Categories.Any())
+                    {
+                        <div class="alert alert-info">
+                            No categories are available
+                            for this event yet.
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">
+                            View the categories available
+                            for this race.
+                        </p>
+
+                        <div class="list-group">
+
+                            @foreach (var category
+                                in Model.Categories)
+                            {
+                                <div class="list-group-item">
+
+                                    <h6 class="fw-bold mb-1">
+                                        @category.Name
+                                    </h6>
+
+                                    <p class="text-muted mb-0">
+                                        @(string.IsNullOrWhiteSpace(
+                                            category.Description)
+                                            ? "No description available."
+                                            : category.Description)
+                                    </p>
+
+                                </div>
+                            }
+
+                        </div>
+
+                        <!-- Participant Enrolment Form -->
+                        <div class="mt-4">
+
+                            <h5 class="fw-bold mb-3">
+                                Enrol in This Event
+                            </h5>
+
+                            <form asp-controller="Participant"
+                                  asp-action="EnrolEvent"
+                                  asp-route-eventId="@Model.Event.EventId"
+                                  method="post">
+
+                                @Html.AntiForgeryToken()
+
+                                <!-- Category Selection -->
+                                <div class="mb-3">
+
+                                    <label for="categoryId"
+                                           class="form-label">
+                                        Select Race Category
+                                    </label>
+
+                                    <select id="categoryId"
+                                            name="categoryId"
+                                            class="form-select"
+                                            required>
+
+                                        <option value="">
+                                            Choose a category
+                                        </option>
+
+                                        @foreach (var category in Model.Categories)
+                                        {
+                                            <option value="@category.CategoryId">
+                                                @category.Name
+                                            </option>
+                                        }
+
+                                    </select>
+
+                                </div>
+
+                                <!-- Enrolment Button -->
+                                <button type="submit"
+                                        class="btn btn-primary w-100">
+                                    Enrol in Event
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    }
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

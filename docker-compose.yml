@@ -1,0 +1,92 @@
+
+services:
+
+  sql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Developer"
+      MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD:?Set password in .env}"
+    volumes:
+      - sql-data:/var/opt/mssql
+    restart: unless-stopped
+
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite
+    environment:
+      AZURITE_SKIP_API_VERSION_CHECK: "true"
+    command: >
+      azurite-blob
+      --blobHost 0.0.0.0
+      --blobPort 10000
+      --location /data
+      --disableProductStyleUrl
+      --skipApiVersionCheck
+    volumes:
+      - azurite-data:/data
+    restart: unless-stopped
+
+ 
+  
+  api:
+    build:
+      context: .
+      dockerfile: RaceDay.Api/Dockerfile
+
+    image: raceday-api:latest
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ASPNETCORE_HTTP_PORTS: "8080"
+      DockerDemo__AllowHttp: "true"
+
+      ConnectionStrings__RaceDayDb: "Server=sql,1433;Database=RaceDayDB;User Id=sa;Password=${MSSQL_SA_PASSWORD};Encrypt=False;TrustServerCertificate=True"
+
+      AzureStorage__ConnectionString: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1"
+
+    ports:
+      - "127.0.0.1:7059:8080"
+
+    depends_on:
+      - sql
+      - azurite
+
+    volumes:
+      - api-keys:/app/keys
+
+    restart: on-failure
+
+
+
+  
+ 
+  mvc:
+    build:
+      context: .
+      dockerfile: RaceDay/Dockerfile
+    image: raceday-mvc:latest
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ASPNETCORE_HTTP_PORTS: "8080"
+      DockerDemo__AllowHttp: "true"
+      ApiSettings__BaseUrl: "http://api:8080/"
+
+
+      ConnectionStrings__RaceDayDb: "Server=sql,1433;Database=RaceDayDB;User Id=sa;Password=${MSSQL_SA_PASSWORD};Encrypt=False;TrustServerCertificate=True"
+
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      - api
+
+    volumes:
+      - mvc-keys:/app/keys
+
+    restart: on-failure
+
+volumes:
+  sql-data:
+  azurite-data:
+  api-keys:
+  mvc-keys:

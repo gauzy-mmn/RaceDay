@@ -1,0 +1,88 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+@model RaceDay.Models.EventViewModel
+
+@{
+    ViewData["Title"] = "Delete Event";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+
+            <h1 class="fw-bold mb-3">Delete Event</h1>
+
+            <div class="alert alert-warning">
+                <strong>Warning!</strong>
+                Are you sure you want to permanently
+                delete this event?
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+
+                    <h4 class="fw-bold mb-3">
+                        @Model.Name
+                    </h4>
+
+                    <dl class="row">
+                        <dt class="col-sm-4">Description</dt>
+                        <dd class="col-sm-8">
+                            @Model.Description
+                        </dd>
+
+                        <dt class="col-sm-4">Event Date</dt>
+                        <dd class="col-sm-8">
+                            @Model.EventDate.ToString("dd MMM yyyy HH:mm")
+                        </dd>
+
+                        <dt class="col-sm-4">Location</dt>
+                        <dd class="col-sm-8">
+                            @Model.Location
+                        </dd>
+
+                        <dt class="col-sm-4">Distance</dt>
+                        <dd class="col-sm-8">
+                            @Model.Distance km
+                        </dd>
+
+                        <dt class="col-sm-4">Event Type</dt>
+                        <dd class="col-sm-8">
+                            @Model.EventType
+                        </dd>
+                    </dl>
+
+                    <hr />
+
+                    <form asp-controller="Organiser"
+                          asp-action="DeleteEvent"
+                          asp-route-id="@Model.EventId"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <div class="d-flex gap-2">
+
+                            <button type="submit"
+                                    class="btn btn-danger">
+                                Yes, Delete Event
+                            </button>
+
+                            <a asp-controller="Organiser"
+                               asp-action="Events"
+                               class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
