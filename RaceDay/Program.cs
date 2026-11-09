@@ -3,6 +3,12 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+var dockerHttp =
+    builder.Environment.IsDevelopment() &&
+    builder.Configuration.GetValue<bool>("DockerDemo:AllowHttp");
+
+
 // MVC services
 builder.Services.AddControllersWithViews();
 
@@ -19,8 +25,11 @@ builder.Services
 
             options.Cookie.Name = "RaceDay.MvcAuth";
             options.Cookie.HttpOnly = true;
-            options.Cookie.SecurePolicy =
-                CookieSecurePolicy.Always;
+
+            options.Cookie.SecurePolicy = dockerHttp
+                ? CookieSecurePolicy.SameAsRequest
+                : CookieSecurePolicy.Always;
+
             options.Cookie.SameSite = SameSiteMode.Lax;
 
             options.ExpireTimeSpan =
@@ -60,8 +69,11 @@ builder.Services.AddSession(options =>
     options.IdleTimeout = TimeSpan.FromMinutes(30);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
-    options.Cookie.SecurePolicy =
-        CookieSecurePolicy.Always;
+
+    options.Cookie.SecurePolicy = dockerHttp
+        ? CookieSecurePolicy.SameAsRequest
+        : CookieSecurePolicy.Always;
+
     options.Cookie.SameSite = SameSiteMode.Lax;
 });
 
@@ -79,7 +91,12 @@ if (!app.Environment.IsDevelopment())
 }
 
 // Middleware
-app.UseHttpsRedirection();
+
+if (!dockerHttp)
+{
+    app.UseHttpsRedirection();
+}
+
 app.UseStaticFiles();
 
 app.UseRouting();

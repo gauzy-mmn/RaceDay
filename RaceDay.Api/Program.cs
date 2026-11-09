@@ -11,6 +11,12 @@ using RaceDay.Api.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 
+var dockerHttp =
+    builder.Environment.IsDevelopment() &&
+    builder.Configuration.GetValue<bool>("DockerDemo:AllowHttp");
+
+
+
 builder.Services.AddDbContext<RaceDayDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("RaceDayDb")));
@@ -105,7 +111,8 @@ app.UseSwaggerUI(c =>
     c.InjectStylesheet("/swagger-custom.css");
 });
 
-if (!app.Environment.IsEnvironment("Testing"))
+
+if (!app.Environment.IsEnvironment("Testing") && !dockerHttp)
 {
     app.UseHttpsRedirection();
 }
